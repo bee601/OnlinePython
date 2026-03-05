@@ -49,6 +49,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         .logo {
@@ -385,7 +388,7 @@
                 <div class="editor-wrapper">
                     <div class="editor-container">
                         <div class="highlight-layer" id="highlight"></div>
-                        <textarea id="code" placeholder="# Write your Python code here..."></textarea>
+                        <textarea id="code" placeholder="# Write your Python code here..." spellcheck="false" autocomplete="off"></textarea>
                     </div>
                 </div>
             </div>
@@ -663,6 +666,12 @@ print("Welcome to PyCode!")`;
 
         // Auto-save to localStorage when user types
         codeEditor.addEventListener('input', () => {
+            // Convert to lowercase
+            const cursorPos = codeEditor.selectionStart;
+            codeEditor.value = codeEditor.value.toLowerCase();
+            codeEditor.selectionStart = cursorPos;
+            codeEditor.selectionEnd = cursorPos;
+            
             updateHighlight();
             localStorage.setItem('pycode-editor', codeEditor.value);
         });
