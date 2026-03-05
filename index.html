@@ -444,8 +444,6 @@
             highlightLayer.scrollLeft = codeEditor.scrollLeft;
         });
 
-        codeEditor.addEventListener('input', updateHighlight);
-
         // Python Simulator - Simple and Error-Free
         class PythonSimulator {
             constructor() {
@@ -618,24 +616,36 @@
             });
         });
 
-        // Load from URL
+        // Load from URL or localStorage
         const params = new URLSearchParams(window.location.search);
         const code = params.get('code');
         if (code) {
             try {
                 codeEditor.value = atob(code);
                 updateHighlight();
+                localStorage.setItem('pycode-editor', codeEditor.value);
             } catch (e) {
                 console.error('Error:', e);
             }
+        } else {
+            // Load from localStorage
+            const saved = localStorage.getItem('pycode-editor');
+            if (saved) {
+                codeEditor.value = saved;
+                updateHighlight();
+            } else {
+                // Default code
+                codeEditor.value = `print("Hello, World!")
+print("Welcome to PyCode!")`;
+                updateHighlight();
+            }
         }
 
-        // Default code
-        if (!codeEditor.value) {
-            codeEditor.value = `print("Hello, World!")
-print("Welcome to PyCode!")`;
+        // Auto-save to localStorage when user types
+        codeEditor.addEventListener('input', () => {
             updateHighlight();
-        }
+            localStorage.setItem('pycode-editor', codeEditor.value);
+        });
     </script>
 </body>
 </html>
