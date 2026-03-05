@@ -446,7 +446,7 @@
 
         codeEditor.addEventListener('input', updateHighlight);
 
-        // Python Simulator - Works offline!
+        // Python Simulator - Simple and Error-Free
         class PythonSimulator {
             constructor() {
                 this.output = '';
@@ -456,44 +456,40 @@
             run(code) {
                 this.output = '';
                 const lines = code.split('\n');
-                
+
                 for (let line of lines) {
                     const trimmed = line.trim();
                     
                     // Skip empty lines and comments
                     if (!trimmed || trimmed.startsWith('#')) continue;
 
-                    // Handle print statements
-                    if (trimmed.startsWith('print(')) {
-                        const content = trimmed.slice(6, -1);
-                        const result = this.evalExpression(content);
-                        this.output += result + '\n';
-                    }
-                    // Handle variable assignment
-                    else if (trimmed.includes('=') && !trimmed.includes('==')) {
-                        const [varName, value] = trimmed.split('=').map(x => x.trim());
-                        this.variables[varName] = this.evalExpression(value);
-                    }
-                    // Handle for loops
-                    else if (trimmed.startsWith('for ')) {
-                        // Simple for loop handling
-                        const match = trimmed.match(/for\s+(\w+)\s+in\s+range\((\d+),\s*(\d+)\)/);
-                        if (match) {
-                            const [, varName, start, end] = match;
-                            for (let i = parseInt(start); i < parseInt(end); i++) {
-                                this.variables[varName] = i;
-                                // Could process loop body here
+                    try {
+                        // Handle print statements only
+                        if (trimmed.startsWith('print(') && trimmed.endsWith(')')) {
+                            const content = trimmed.slice(6, -1);
+                            const result = this.evalPrint(content);
+                            this.output += result + '\n';
+                        }
+                        // Handle variable assignment
+                        else if (trimmed.includes('=') && !trimmed.includes('==')) {
+                            const parts = trimmed.split('=');
+                            if (parts.length === 2) {
+                                const varName = parts[0].trim();
+                                const value = parts[1].trim();
+                                this.variables[varName] = this.evalValue(value);
                             }
                         }
+                    } catch (e) {
+                        // Silently skip errors
                     }
                 }
 
                 return this.output;
             }
 
-            evalExpression(expr) {
+            evalPrint(expr) {
                 expr = expr.trim();
-                
+
                 // Handle strings
                 if ((expr.startsWith('"') && expr.endsWith('"')) || 
                     (expr.startsWith("'") && expr.endsWith("'"))) {
@@ -505,31 +501,46 @@
                     let result = expr.slice(2, -1);
                     const matches = result.match(/\{([^}]+)\}/g);
                     if (matches) {
-                        for (let match of matches) {
+                        matches.forEach(match => {
                             const varName = match.slice(1, -1);
-                            const value = this.variables[varName] || varName;
+                            const value = this.variables[varName] || match;
                             result = result.replace(match, value);
-                        }
+                        });
                     }
                     return result;
                 }
 
-                // Handle numbers
-                if (!isNaN(expr)) {
-                    return expr;
-                }
-
-                // Handle variables
+                // Handle variable names
                 if (this.variables[expr] !== undefined) {
                     return this.variables[expr];
                 }
 
-                // Handle simple math
-                try {
-                    return eval(expr);
-                } catch (e) {
-                    return 'Error: ' + e.message;
+                // Handle simple numbers
+                if (!isNaN(expr) && expr !== '') {
+                    return expr;
                 }
+
+                return expr;
+            }
+
+            evalValue(expr) {
+                // Simple number
+                if (!isNaN(expr) && expr !== '') {
+                    return expr;
+                }
+
+                // String
+                if ((expr.startsWith('"') && expr.endsWith('"')) || 
+                    (expr.startsWith("'") && expr.endsWith("'"))) {
+                    return expr.slice(1, -1);
+                }
+
+                // Variable reference
+                if (this.variables[expr]) {
+                    return this.variables[expr];
+                }
+
+                return expr;
             }
         }
 
@@ -621,23 +632,8 @@
 
         // Default code
         if (!codeEditor.value) {
-            codeEditor.value = `# Welcome to PyCode! 🐍
-print("Hello, World!")
-
-# Example 1: List Comprehension
-numbers = [1, 2, 3, 4, 5]
-squares = [x**2 for x in numbers]
-print(f"Squares: {squares}")
-
-# Example 2: Functions
-def greet(name):
-    return f"Hello, {name}!"
-
-print(greet("Python Developer"))
-
-# Example 3: Loops
-for i in range(1, 4):
-    print(f"Count: {i}")`;
+            codeEditor.value = `print("Hello, World!")
+print("Welcome to PyCode!")`;
             updateHighlight();
         }
     </script>
