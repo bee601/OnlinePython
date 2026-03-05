@@ -440,6 +440,28 @@
         .command:hover {
             background: rgba(59, 130, 246, 0.1);
             border-color: var(--accent-blue);
+            transform: translateX(4px);
+        }
+
+        .command:active {
+            transform: translateX(2px);
+        }
+
+        .snippet-category {
+            color: var(--accent-purple);
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 16px;
+            margin-bottom: 8px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .snippet-category:first-child {
+            margin-top: 0;
+            border-top: none;
         }
 
         .command-name {
@@ -528,50 +550,400 @@
 
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h3>Commands</h3>
+            <h3>Code Snippets</h3>
             <button class="sidebar-close" id="sidebarClose">✕</button>
         </div>
         <div class="sidebar-content">
-            <div class="command">
+            <!-- Print Commands -->
+            <div class="snippet-category">Print Functions</div>
+
+            <div class="command" data-code='print("Hello")'>
                 <div class="command-name">print()</div>
-                <div class="command-desc">Output text to console</div>
+                <div class="command-desc">Output text</div>
                 <div class="command-example">print("Hello")</div>
             </div>
 
-            <div class="command">
-                <div class="command-name">Variables</div>
-                <div class="command-desc">Store values in memory</div>
-                <div class="command-example">x = 10<br>name = "Bob"</div>
+            <div class="command" data-code='name = "Alice"
+print(f"Hello {name}")'>
+                <div class="command-name">f-string print</div>
+                <div class="command-desc">Print with variables</div>
+                <div class="command-example">print(f"Hi {name}")</div>
             </div>
 
-            <div class="command">
-                <div class="command-name">Strings</div>
-                <div class="command-desc">Text values with quotes</div>
-                <div class="command-example">text = "Hello"<br>print(text)</div>
+            <!-- Variables -->
+            <div class="snippet-category">Variables</div>
+
+            <div class="command" data-code='x = 10'>
+                <div class="command-name">Number</div>
+                <div class="command-desc">Store a number</div>
+                <div class="command-example">x = 10</div>
             </div>
 
-            <div class="command">
-                <div class="command-name">Numbers</div>
-                <div class="command-desc">Integer and float values</div>
-                <div class="command-example">x = 5<br>y = 3.14</div>
+            <div class="command" data-code='name = "Bob"'>
+                <div class="command-name">String</div>
+                <div class="command-desc">Store text</div>
+                <div class="command-example">name = "Bob"</div>
             </div>
 
-            <div class="command">
-                <div class="command-name">f-strings</div>
-                <div class="command-desc">Insert variables in text</div>
-                <div class="command-example">name = "Alice"<br>print(f"Hi {name}")</div>
+            <div class="command" data-code='items = ["apple", "banana"]'>
+                <div class="command-name">List</div>
+                <div class="command-desc">Store multiple values</div>
+                <div class="command-example">items = [...]</div>
             </div>
 
-            <div class="command">
-                <div class="command-name">Comments</div>
-                <div class="command-desc">Explain your code</div>
-                <div class="command-example"># This is a comment</div>
+            <!-- Math -->
+            <div class="snippet-category">Math Operations</div>
+
+            <div class="command" data-code='x = 5 + 3'>
+                <div class="command-name">Addition</div>
+                <div class="command-desc">Add two numbers</div>
+                <div class="command-example">x = 5 + 3</div>
             </div>
 
-            <div class="command">
-                <div class="command-name">Math</div>
-                <div class="command-desc">Basic calculations</div>
-                <div class="command-example">x = 5 + 3<br>y = 10 * 2</div>
+            <div class="command" data-code='x = 10 - 3'>
+                <div class="command-name">Subtraction</div>
+                <div class="command-desc">Subtract numbers</div>
+                <div class="command-example">x = 10 - 3</div>
+            </div>
+
+            <div class="command" data-code='x = 4 * 5'>
+                <div class="command-name">Multiplication</div>
+                <div class="command-desc">Multiply numbers</div>
+                <div class="command-example">x = 4 * 5</div>
+            </div>
+
+            <div class="command" data-code='x = 20 / 4'>
+                <div class="command-name">Division</div>
+                <div class="command-desc">Divide numbers</div>
+                <div class="command-example">x = 20 / 4</div>
+            </div>
+
+            <!-- String Operations -->
+            <div class="snippet-category">String Operations</div>
+
+            <div class="command" data-code='text = "hello"
+print(text.upper())'>
+                <div class="command-name">uppercase()</div>
+                <div class="command-desc">Make text uppercase</div>
+                <div class="command-example">text.upper()</div>
+            </div>
+
+            <div class="command" data-code='text = "HELLO"
+print(text.lower())'>
+                <div class="command-name">lowercase()</div>
+                <div class="command-desc">Make text lowercase</div>
+                <div class="command-example">text.lower()</div>
+            </div>
+
+            <div class="command" data-code='text = "hello world"
+print(text.replace("world", "python"))'>
+                <div class="command-name">replace()</div>
+                <div class="command-desc">Replace text</div>
+                <div class="command-example">text.replace()</div>
+            </div>
+
+            <!-- List Operations -->
+            <div class="snippet-category">List Operations</div>
+
+            <div class="command" data-code='items = ["a", "b"]
+items.append("c")'>
+                <div class="command-name">append()</div>
+                <div class="command-desc">Add to list</div>
+                <div class="command-example">items.append()</div>
+            </div>
+
+            <div class="command" data-code='items = [1, 2, 3]
+print(len(items))'>
+                <div class="command-name">len()</div>
+                <div class="command-desc">List length</div>
+                <div class="command-example">len(items)</div>
+            </div>
+
+            <!-- Comments -->
+            <div class="snippet-category">Comments</div>
+
+            <div class="command" data-code='# This is a comment'>
+                <div class="command-name">Comment</div>
+                <div class="command-desc">Explain code</div>
+                <div class="command-example"># Comment</div>
+            </div>
+
+            <!-- Type Conversion -->
+            <div class="snippet-category">Type Conversion</div>
+
+            <div class="command" data-code='x = int("5")'>
+                <div class="command-name">int()</div>
+                <div class="command-desc">Convert to number</div>
+                <div class="command-example">int("5")</div>
+            </div>
+
+            <div class="command" data-code='x = str(42)'>
+                <div class="command-name">str()</div>
+                <div class="command-desc">Convert to text</div>
+                <div class="command-example">str(42)</div>
+            </div>
+
+            <div class="command" data-code='x = float("3.14")'>
+                <div class="command-name">float()</div>
+                <div class="command-desc">Convert to decimal</div>
+                <div class="command-example">float("3.14")</div>
+            </div>
+
+            <!-- Conditionals -->
+            <div class="snippet-category">Conditionals (if/else)</div>
+
+            <div class="command" data-code='if x > 5:
+    print("Greater than 5")'>
+                <div class="command-name">if statement</div>
+                <div class="command-desc">Check a condition</div>
+                <div class="command-example">if x > 5:</div>
+            </div>
+
+            <div class="command" data-code='if x > 5:
+    print("Greater")
+else:
+    print("Less or equal")'>
+                <div class="command-name">if/else</div>
+                <div class="command-desc">Two options</div>
+                <div class="command-example">if/else</div>
+            </div>
+
+            <div class="command" data-code='if x > 10:
+    print("Big")
+elif x > 5:
+    print("Medium")
+else:
+    print("Small")'>
+                <div class="command-name">if/elif/else</div>
+                <div class="command-desc">Multiple options</div>
+                <div class="command-example">if/elif/else</div>
+            </div>
+
+            <!-- Loops -->
+            <div class="snippet-category">Loops</div>
+
+            <div class="command" data-code='for i in range(5):
+    print(i)'>
+                <div class="command-name">for loop</div>
+                <div class="command-desc">Repeat with counter</div>
+                <div class="command-example">for i in range(5)</div>
+            </div>
+
+            <div class="command" data-code='items = ["a", "b", "c"]
+for item in items:
+    print(item)'>
+                <div class="command-name">for in list</div>
+                <div class="command-desc">Loop through list</div>
+                <div class="command-example">for item in items</div>
+            </div>
+
+            <div class="command" data-code='x = 0
+while x < 5:
+    print(x)
+    x = x + 1'>
+                <div class="command-name">while loop</div>
+                <div class="command-desc">Repeat until condition</div>
+                <div class="command-example">while x < 5</div>
+            </div>
+
+            <!-- Dictionaries -->
+            <div class="snippet-category">Dictionaries</div>
+
+            <div class="command" data-code='person = {"name": "Alice", "age": 25}'>
+                <div class="command-name">Create dict</div>
+                <div class="command-desc">Store key-value pairs</div>
+                <div class="command-example">dict = {}</div>
+            </div>
+
+            <div class="command" data-code='person = {"name": "Alice"}
+print(person["name"])'>
+                <div class="command-name">Access dict</div>
+                <div class="command-desc">Get value from dict</div>
+                <div class="command-example">dict["key"]</div>
+            </div>
+
+            <div class="command" data-code='person = {"name": "Alice"}
+person["age"] = 25'>
+                <div class="command-name">Add to dict</div>
+                <div class="command-desc">Add new key-value</div>
+                <div class="command-example">dict["key"] = value</div>
+            </div>
+
+            <!-- Functions -->
+            <div class="snippet-category">Functions</div>
+
+            <div class="command" data-code='def greet():
+    print("Hello")
+
+greet()'>
+                <div class="command-name">Simple function</div>
+                <div class="command-desc">Define and call function</div>
+                <div class="command-example">def function():</div>
+            </div>
+
+            <div class="command" data-code='def add(a, b):
+    return a + b
+
+result = add(5, 3)
+print(result)'>
+                <div class="command-name">Function with params</div>
+                <div class="command-desc">Function with arguments</div>
+                <div class="command-example">def add(a, b):</div>
+            </div>
+
+            <div class="command" data-code='def greet(name):
+    return f"Hello, {name}"
+
+print(greet("Alice"))'>
+                <div class="command-name">Return value</div>
+                <div class="command-desc">Return result</div>
+                <div class="command-example">return value</div>
+            </div>
+
+            <!-- Comparisons -->
+            <div class="snippet-category">Comparisons</div>
+
+            <div class="command" data-code='if x == 5:
+    print("Equal")'>
+                <div class="command-name">Equal (==)</div>
+                <div class="command-desc">Check if equal</div>
+                <div class="command-example">x == 5</div>
+            </div>
+
+            <div class="command" data-code='if x != 5:
+    print("Not equal")'>
+                <div class="command-name">Not equal (!=)</div>
+                <div class="command-desc">Check if different</div>
+                <div class="command-example">x != 5</div>
+            </div>
+
+            <div class="command" data-code='if x > 5 and y < 10:
+    print("Both true")'>
+                <div class="command-name">AND operator</div>
+                <div class="command-desc">Both conditions true</div>
+                <div class="command-example">and</div>
+            </div>
+
+            <div class="command" data-code='if x > 5 or y < 10:
+    print("One true")'>
+                <div class="command-name">OR operator</div>
+                <div class="command-desc">One condition true</div>
+                <div class="command-example">or</div>
+            </div>
+
+            <!-- More String Methods -->
+            <div class="snippet-category">String Methods</div>
+
+            <div class="command" data-code='text = "  hello world  "
+print(text.strip())'>
+                <div class="command-name">strip()</div>
+                <div class="command-desc">Remove spaces</div>
+                <div class="command-example">text.strip()</div>
+            </div>
+
+            <div class="command" data-code='text = "hello world"
+print(text.split())'>
+                <div class="command-name">split()</div>
+                <div class="command-desc">Split into list</div>
+                <div class="command-example">text.split()</div>
+            </div>
+
+            <div class="command" data-code='words = ["hello", "world"]
+print(" ".join(words))'>
+                <div class="command-name">join()</div>
+                <div class="command-desc">Join list to string</div>
+                <div class="command-example">sep.join(list)</div>
+            </div>
+
+            <div class="command" data-code='text = "hello"
+print(text.find("l"))'>
+                <div class="command-name">find()</div>
+                <div class="command-desc">Find position</div>
+                <div class="command-example">text.find("char")</div>
+            </div>
+
+            <!-- List Methods -->
+            <div class="snippet-category">List Methods</div>
+
+            <div class="command" data-code='items = [3, 1, 2]
+items.sort()
+print(items)'>
+                <div class="command-name">sort()</div>
+                <div class="command-desc">Sort list</div>
+                <div class="command-example">items.sort()</div>
+            </div>
+
+            <div class="command" data-code='items = [1, 2, 3, 2]
+print(items.count(2))'>
+                <div class="command-name">count()</div>
+                <div class="command-desc">Count occurrences</div>
+                <div class="command-example">items.count()</div>
+            </div>
+
+            <div class="command" data-code='items = [1, 2, 3]
+items.reverse()
+print(items)'>
+                <div class="command-name">reverse()</div>
+                <div class="command-desc">Reverse list</div>
+                <div class="command-example">items.reverse()</div>
+            </div>
+
+            <div class="command" data-code='items = [1, 2, 3]
+print(items.pop())'>
+                <div class="command-name">pop()</div>
+                <div class="command-desc">Remove last item</div>
+                <div class="command-example">items.pop()</div>
+            </div>
+
+            <!-- Advanced Math -->
+            <div class="snippet-category">Advanced Math</div>
+
+            <div class="command" data-code='x = 2 ** 3
+print(x)'>
+                <div class="command-name">Power (**)</div>
+                <div class="command-desc">Exponent</div>
+                <div class="command-example">2 ** 3</div>
+            </div>
+
+            <div class="command" data-code='x = 17 % 5
+print(x)'>
+                <div class="command-name">Modulo (%)</div>
+                <div class="command-desc">Remainder</div>
+                <div class="command-example">17 % 5</div>
+            </div>
+
+            <div class="command" data-code='x = 10 // 3
+print(x)'>
+                <div class="command-name">Floor division (//)</div>
+                <div class="command-desc">Divide round down</div>
+                <div class="command-example">10 // 3</div>
+            </div>
+
+            <!-- Type Checking -->
+            <div class="snippet-category">Type Checking</div>
+
+            <div class="command" data-code='x = 5
+print(type(x))'>
+                <div class="command-name">type()</div>
+                <div class="command-desc">Check variable type</div>
+                <div class="command-example">type(x)</div>
+            </div>
+
+            <div class="command" data-code='items = [1, 2, 3]
+print(isinstance(items, list))'>
+                <div class="command-name">isinstance()</div>
+                <div class="command-desc">Check type match</div>
+                <div class="command-example">isinstance(x, type)</div>
+            </div>
+
+            <!-- Input/Output -->
+            <div class="snippet-category">Input (Limited)</div>
+
+            <div class="command" data-code='# Note: input() may not work perfectly
+# name = input("Enter name: ")'>
+                <div class="command-name">input()</div>
+                <div class="command-desc">Get user input</div>
+                <div class="command-example"># input()</div>
             </div>
         </div>
     </div>
@@ -848,6 +1220,47 @@ print("Welcome to PyCode!")`;
             if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
                 sidebar.classList.remove('show');
             }
+        });
+
+        // Handle code snippet clicks
+        document.querySelectorAll('.command').forEach(cmd => {
+            cmd.addEventListener('click', () => {
+                const code = cmd.getAttribute('data-code');
+                if (code) {
+                    const pos = codeEditor.selectionStart;
+                    const text = codeEditor.value;
+                    const beforeCursor = text.substring(0, pos);
+                    const afterCursor = text.substring(pos);
+                    
+                    // Check if we should add newline before
+                    let codeToInsert = code;
+                    if (beforeCursor && !beforeCursor.endsWith('\n')) {
+                        codeToInsert = '\n' + code;
+                    }
+                    
+                    // Check if we should add newline after
+                    if (afterCursor && !afterCursor.startsWith('\n') && !code.endsWith('\n')) {
+                        codeToInsert = codeToInsert + '\n';
+                    }
+                    
+                    codeEditor.value = beforeCursor + codeToInsert + afterCursor;
+                    
+                    // Move cursor to end of inserted code
+                    const newPos = pos + codeToInsert.length;
+                    codeEditor.selectionStart = newPos;
+                    codeEditor.selectionEnd = newPos;
+                    
+                    // Update highlight and save
+                    updateHighlight();
+                    localStorage.setItem('pycode-editor', codeEditor.value);
+                    
+                    // Close sidebar
+                    document.getElementById('sidebar').classList.remove('show');
+                    
+                    // Focus editor
+                    codeEditor.focus();
+                }
+            });
         });
 
         // Auto-save to localStorage when user types
