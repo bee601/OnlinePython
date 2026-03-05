@@ -439,6 +439,26 @@
             }
         }
 
+        codeEditor.addEventListener('keydown', (e) => {
+            // Auto-close quotes
+            if (e.key === '"' || e.key === "'") {
+                e.preventDefault();
+                const quote = e.key;
+                const pos = codeEditor.selectionStart;
+                const text = codeEditor.value;
+                
+                // Insert two quotes
+                codeEditor.value = text.substring(0, pos) + quote + quote + text.substring(pos);
+                
+                // Move cursor to middle
+                codeEditor.selectionStart = pos + 1;
+                codeEditor.selectionEnd = pos + 1;
+                
+                updateHighlight();
+                localStorage.setItem('pycode-editor', codeEditor.value);
+            }
+        });
+
         codeEditor.addEventListener('scroll', () => {
             highlightLayer.scrollTop = codeEditor.scrollTop;
             highlightLayer.scrollLeft = codeEditor.scrollLeft;
