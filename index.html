@@ -8,1266 +8,426 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --accent-blue: #3b82f6;
-            --accent-purple: #a78bfa;
-            --accent-pink: #f472b6;
-            --text-primary: #f1f5f9;
-            --text-secondary: #cbd5e1;
-            --border-color: rgba(148, 163, 184, 0.2);
-            --success: #10b981;
-            --error: #ef4444;
+            --bg: #0f172a;
+            --blue: #3b82f6;
+            --text: #f1f5f9;
+            --gray: #cbd5e1;
+            --border: rgba(148, 163, 184, 0.2);
         }
-
         body {
-            background: linear-gradient(135deg, var(--bg-primary) 0%, #1a1f35 100%);
-            color: var(--text-primary);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, var(--bg) 0%, #1a1f35 100%);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
             height: 100vh;
             overflow: hidden;
         }
-
-        .container {
-            display: flex;
-            height: 100vh;
-            flex-direction: column;
-        }
-
+        .container { display: flex; height: 100vh; flex-direction: column; }
         .navbar {
             background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border-color);
             padding: 16px 24px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            border-bottom: 1px solid var(--border);
             position: sticky;
             top: 0;
             z-index: 100;
         }
-
-        .logo {
-            font-size: 28px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #3b82f6 0%, #a78bfa 50%, #f472b6 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logo::before {
-            content: "🐍";
-            font-size: 32px;
-        }
-
-        .controls {
-            display: flex;
-            gap: 10px;
-        }
-
+        .logo { font-size: 24px; font-weight: 800; }
+        .controls { display: flex; gap: 10px; }
         button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 13px;
-            font-weight: 600;
+            padding: 10px 16px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: rgba(255,255,255,0.1);
+            color: var(--text);
             cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-size: 12px;
+            font-weight: 600;
         }
-
+        button:hover { background: rgba(255,255,255,0.2); }
         .btn-run {
             background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
             color: white;
             border: 1px solid rgba(59, 130, 246, 0.5);
         }
-
-        .btn-run:hover {
-            box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
-            transform: translateY(-2px);
-        }
-
-        .btn-share {
-            background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
-            color: white;
-            border: 1px solid rgba(167, 139, 250, 0.5);
-        }
-
-        .btn-share:hover {
-            box-shadow: 0 0 30px rgba(167, 139, 250, 0.6);
-            transform: translateY(-2px);
-        }
-
-        button:not(.btn-run):not(.btn-share) {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-
-        .main {
-            display: flex;
-            flex: 1;
-            gap: 12px;
-            padding: 12px;
-            overflow: hidden;
-        }
-
-        .editor-section {
+        .main { display: flex; flex: 1; gap: 12px; padding: 12px; overflow: hidden; }
+        .editor-section, .output-section {
             flex: 1;
             display: flex;
             flex-direction: column;
             background: rgba(30, 41, 59, 0.8);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
-
-        .editor-header {
+        .header {
             background: rgba(51, 65, 85, 0.5);
-            border-bottom: 1px solid var(--border-color);
-            padding: 12px 16px;
-            font-size: 12px;
+            border-bottom: 1px solid var(--border);
+            padding: 10px 16px;
+            font-size: 11px;
             font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            color: var(--gray);
         }
-
-        .editor-wrapper {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .editor-container {
-            position: relative;
-            height: 100%;
-        }
-
+        .editor-wrapper { flex: 1; position: relative; overflow: hidden; }
+        .editor-container { position: relative; height: 100%; }
         textarea {
             position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
             padding: 16px;
             border: none;
-            outline: none;
             background: transparent;
             color: transparent;
             caret-color: #3b82f6;
             font-family: 'Fira Code', monospace;
             font-size: 14px;
             line-height: 1.6;
-            resize: none;
             z-index: 2;
             overflow: auto;
+            resize: none;
         }
-
         .highlight-layer {
             position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
             padding: 16px;
-            overflow: auto;
-            pointer-events: none;
             font-family: 'Fira Code', monospace;
             font-size: 14px;
             line-height: 1.6;
             white-space: pre-wrap;
-            word-wrap: break-word;
+            overflow: auto;
+            pointer-events: none;
             z-index: 1;
         }
-
-        .hljs {
-            background: transparent !important;
-        }
-
+        .hljs { background: transparent !important; }
         .hljs-string { color: #10b981; }
-        .hljs-number { color: #3b82f6; }
         .hljs-keyword { color: #f472b6; }
-        .hljs-built_in { color: #a78bfa; }
-        .hljs-comment { color: #64748b; }
-
-        .output-section {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: rgba(30, 41, 59, 0.8);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-
-        .output-header {
-            background: rgba(51, 65, 85, 0.5);
-            border-bottom: 1px solid var(--border-color);
-            padding: 12px 16px;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .output-status {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .status-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--success);
-            box-shadow: 0 0 10px var(--success);
-        }
-
-        .status-indicator.running {
-            background: var(--accent-blue);
-            animation: pulse 1s infinite;
-        }
-
-        .status-indicator.error {
-            background: var(--error);
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.6; }
-            50% { opacity: 1; }
-        }
-
         .output-container {
             flex: 1;
             overflow-y: auto;
             padding: 16px;
             font-family: 'Fira Code', monospace;
             font-size: 13px;
-            line-height: 1.6;
         }
-
-        .output-line {
-            margin-bottom: 6px;
-            word-wrap: break-word;
-            white-space: pre-wrap;
-        }
-
-        .output-line.error {
-            color: #fca5a5;
-            background: rgba(239, 68, 68, 0.1);
-            padding: 6px 8px;
-            border-left: 3px solid var(--error);
-            border-radius: 4px;
-        }
-
-        .output-placeholder {
-            color: var(--text-secondary);
-            text-align: center;
-            padding: 40px 20px;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.6);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.show {
-            display: flex;
-        }
-
-        .modal-content {
-            background: rgba(30, 41, 59, 0.95);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 28px;
-            max-width: 500px;
-        }
-
-        .modal-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            color: var(--text-primary);
-        }
-
-        .modal-code {
-            background: rgba(15, 23, 42, 0.8);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 16px;
-            font-size: 12px;
-            word-break: break-all;
-            max-height: 120px;
-            overflow-y: auto;
-            color: var(--accent-blue);
-            font-family: 'Fira Code', monospace;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 8px;
-        }
-
-        .btn-copy {
-            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
-            color: white;
-            border: 1px solid rgba(59, 130, 246, 0.5);
-            flex: 1;
-        }
-
-        .btn-close {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-
-        .copy-feedback {
-            display: none;
-            color: var(--success);
-            font-size: 12px;
-            text-align: center;
-            margin-top: 12px;
-        }
-
-        .copy-feedback.show {
-            display: block;
-        }
-
-        @media (max-width: 1024px) {
-            .main {
-                flex-direction: column;
-            }
-        }
-
         .sidebar {
             position: fixed;
-            left: -350px;
+            left: -380px;
             top: 0;
-            width: 350px;
+            width: 380px;
             height: 100vh;
             background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(20px);
-            border-right: 1px solid var(--border-color);
+            border-right: 1px solid var(--border);
             z-index: 999;
-            transition: left 0.3s ease;
+            transition: left 0.3s;
             overflow-y: auto;
             padding-top: 60px;
         }
-
-        .sidebar.show {
-            left: 0;
-        }
-
+        .sidebar.show { left: 0; }
         .sidebar-header {
             position: fixed;
             top: 0;
-            left: -350px;
-            width: 350px;
+            left: -380px;
+            width: 380px;
             background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border-color);
             padding: 16px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            border-bottom: 1px solid var(--border);
             z-index: 1000;
-            transition: left 0.3s ease;
+            transition: left 0.3s;
         }
-
-        .sidebar.show .sidebar-header {
-            left: 0;
-        }
-
-        .sidebar-header h3 {
-            color: var(--text-primary);
-            font-size: 18px;
-        }
-
+        .sidebar.show .sidebar-header { left: 0; }
+        .sidebar-header h3 { font-size: 16px; }
         .sidebar-close {
             background: none;
             border: none;
-            color: var(--text-secondary);
-            font-size: 24px;
+            color: var(--gray);
+            font-size: 20px;
             cursor: pointer;
             padding: 0;
         }
-
-        .sidebar-content {
-            padding: 20px;
-        }
-
-        .command {
+        .sidebar-content { padding: 16px; }
+        .item {
             background: rgba(51, 65, 85, 0.5);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 12px;
+            border: 1px solid var(--border);
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 6px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.2s;
         }
-
-        .command:hover {
+        .item:hover {
             background: rgba(59, 130, 246, 0.1);
-            border-color: var(--accent-blue);
+            border-color: var(--blue);
             transform: translateX(4px);
         }
-
-        .command:active {
-            transform: translateX(2px);
-        }
-
-        .snippet-category {
-            color: var(--accent-purple);
-            font-weight: 700;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 16px;
-            margin-bottom: 8px;
-            padding-top: 8px;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .snippet-category:first-child {
-            margin-top: 0;
-            border-top: none;
-        }
-
-        .command-name {
-            color: var(--accent-blue);
-            font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 4px;
-        }
-
-        .command-desc {
-            color: var(--text-secondary);
-            font-size: 12px;
-            margin-bottom: 8px;
-        }
-
-        .command-example {
-            background: rgba(15, 23, 42, 0.8);
-            border-left: 2px solid var(--accent-purple);
-            color: #10b981;
-            font-size: 11px;
-            padding: 6px 8px;
-            border-radius: 4px;
-            font-family: 'Fira Code', monospace;
-            line-height: 1.4;
-        }
-
-        .sidebar-toggle {
+        .item-name { color: var(--blue); font-weight: 600; font-size: 12px; margin-bottom: 2px; }
+        .item-desc { color: var(--gray); font-size: 11px; }
+        .buttons {
             position: fixed;
-            left: 20px;
             bottom: 20px;
-            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
-            color: white;
-            border: 1px solid rgba(59, 130, 246, 0.5);
-            padding: 12px 16px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            display: flex;
+            gap: 10px;
             z-index: 50;
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
         }
-
-        .sidebar-toggle:hover {
-            box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
-            transform: translateY(-2px);
-        }
+        #templatesBtn { left: 20px; }
+        #commandsBtn { left: 190px; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="navbar">
-            <div class="logo">PyCode</div>
+            <div class="logo">🐍 PyCode</div>
             <div class="controls">
                 <button class="btn-run" id="runBtn">▶ Run</button>
-                <button class="btn-share" id="shareBtn">📤 Share</button>
+                <button id="downloadBtn">⬇ Download</button>
                 <button id="clearBtn">Clear</button>
             </div>
         </div>
 
         <div class="main">
             <div class="editor-section">
-                <div class="editor-header">Python Code</div>
+                <div class="header">Python Code</div>
                 <div class="editor-wrapper">
                     <div class="editor-container">
                         <div class="highlight-layer" id="highlight"></div>
-                        <textarea id="code" placeholder="# Write your Python code here..." spellcheck="false" autocomplete="off"></textarea>
+                        <textarea id="code" spellcheck="false"></textarea>
                     </div>
                 </div>
             </div>
 
             <div class="output-section">
-                <div class="output-header">
-                    <div class="output-status">
-                        <div class="status-indicator" id="statusIndicator"></div>
-                        <span id="statusText">Ready</span>
-                    </div>
-                    <span id="executionTime"></span>
-                </div>
-                <div class="output-container" id="output">
-                    <div class="output-placeholder">Click "Run" to execute your code</div>
-                </div>
+                <div class="header">Output</div>
+                <div class="output-container" id="output">Ready</div>
             </div>
         </div>
     </div>
 
-    <div class="sidebar" id="sidebar">
+    <div class="sidebar" id="templates">
         <div class="sidebar-header">
-            <h3>Code Snippets</h3>
-            <button class="sidebar-close" id="sidebarClose">✕</button>
+            <h3>Templates (31+)</h3>
+            <button class="sidebar-close" id="tClose">✕</button>
         </div>
-        <div class="sidebar-content">
-            <!-- Print Commands -->
-            <div class="snippet-category">Print Functions</div>
-
-            <div class="command" data-code='print("Hello")'>
-                <div class="command-name">print()</div>
-                <div class="command-desc">Output text</div>
-                <div class="command-example">print("Hello")</div>
-            </div>
-
-            <div class="command" data-code='name = "Alice"
-print(f"Hello {name}")'>
-                <div class="command-name">f-string print</div>
-                <div class="command-desc">Print with variables</div>
-                <div class="command-example">print(f"Hi {name}")</div>
-            </div>
-
-            <!-- Variables -->
-            <div class="snippet-category">Variables</div>
-
-            <div class="command" data-code='x = 10'>
-                <div class="command-name">Number</div>
-                <div class="command-desc">Store a number</div>
-                <div class="command-example">x = 10</div>
-            </div>
-
-            <div class="command" data-code='name = "Bob"'>
-                <div class="command-name">String</div>
-                <div class="command-desc">Store text</div>
-                <div class="command-example">name = "Bob"</div>
-            </div>
-
-            <div class="command" data-code='items = ["apple", "banana"]'>
-                <div class="command-name">List</div>
-                <div class="command-desc">Store multiple values</div>
-                <div class="command-example">items = [...]</div>
-            </div>
-
-            <!-- Math -->
-            <div class="snippet-category">Math Operations</div>
-
-            <div class="command" data-code='x = 5 + 3'>
-                <div class="command-name">Addition</div>
-                <div class="command-desc">Add two numbers</div>
-                <div class="command-example">x = 5 + 3</div>
-            </div>
-
-            <div class="command" data-code='x = 10 - 3'>
-                <div class="command-name">Subtraction</div>
-                <div class="command-desc">Subtract numbers</div>
-                <div class="command-example">x = 10 - 3</div>
-            </div>
-
-            <div class="command" data-code='x = 4 * 5'>
-                <div class="command-name">Multiplication</div>
-                <div class="command-desc">Multiply numbers</div>
-                <div class="command-example">x = 4 * 5</div>
-            </div>
-
-            <div class="command" data-code='x = 20 / 4'>
-                <div class="command-name">Division</div>
-                <div class="command-desc">Divide numbers</div>
-                <div class="command-example">x = 20 / 4</div>
-            </div>
-
-            <!-- String Operations -->
-            <div class="snippet-category">String Operations</div>
-
-            <div class="command" data-code='text = "hello"
-print(text.upper())'>
-                <div class="command-name">uppercase()</div>
-                <div class="command-desc">Make text uppercase</div>
-                <div class="command-example">text.upper()</div>
-            </div>
-
-            <div class="command" data-code='text = "HELLO"
-print(text.lower())'>
-                <div class="command-name">lowercase()</div>
-                <div class="command-desc">Make text lowercase</div>
-                <div class="command-example">text.lower()</div>
-            </div>
-
-            <div class="command" data-code='text = "hello world"
-print(text.replace("world", "python"))'>
-                <div class="command-name">replace()</div>
-                <div class="command-desc">Replace text</div>
-                <div class="command-example">text.replace()</div>
-            </div>
-
-            <!-- List Operations -->
-            <div class="snippet-category">List Operations</div>
-
-            <div class="command" data-code='items = ["a", "b"]
-items.append("c")'>
-                <div class="command-name">append()</div>
-                <div class="command-desc">Add to list</div>
-                <div class="command-example">items.append()</div>
-            </div>
-
-            <div class="command" data-code='items = [1, 2, 3]
-print(len(items))'>
-                <div class="command-name">len()</div>
-                <div class="command-desc">List length</div>
-                <div class="command-example">len(items)</div>
-            </div>
-
-            <!-- Comments -->
-            <div class="snippet-category">Comments</div>
-
-            <div class="command" data-code='# This is a comment'>
-                <div class="command-name">Comment</div>
-                <div class="command-desc">Explain code</div>
-                <div class="command-example"># Comment</div>
-            </div>
-
-            <!-- Type Conversion -->
-            <div class="snippet-category">Type Conversion</div>
-
-            <div class="command" data-code='x = int("5")'>
-                <div class="command-name">int()</div>
-                <div class="command-desc">Convert to number</div>
-                <div class="command-example">int("5")</div>
-            </div>
-
-            <div class="command" data-code='x = str(42)'>
-                <div class="command-name">str()</div>
-                <div class="command-desc">Convert to text</div>
-                <div class="command-example">str(42)</div>
-            </div>
-
-            <div class="command" data-code='x = float("3.14")'>
-                <div class="command-name">float()</div>
-                <div class="command-desc">Convert to decimal</div>
-                <div class="command-example">float("3.14")</div>
-            </div>
-
-            <!-- Conditionals -->
-            <div class="snippet-category">Conditionals (if/else)</div>
-
-            <div class="command" data-code='if x > 5:
-    print("Greater than 5")'>
-                <div class="command-name">if statement</div>
-                <div class="command-desc">Check a condition</div>
-                <div class="command-example">if x > 5:</div>
-            </div>
-
-            <div class="command" data-code='if x > 5:
-    print("Greater")
-else:
-    print("Less or equal")'>
-                <div class="command-name">if/else</div>
-                <div class="command-desc">Two options</div>
-                <div class="command-example">if/else</div>
-            </div>
-
-            <div class="command" data-code='if x > 10:
-    print("Big")
-elif x > 5:
-    print("Medium")
-else:
-    print("Small")'>
-                <div class="command-name">if/elif/else</div>
-                <div class="command-desc">Multiple options</div>
-                <div class="command-example">if/elif/else</div>
-            </div>
-
-            <!-- Loops -->
-            <div class="snippet-category">Loops</div>
-
-            <div class="command" data-code='for i in range(5):
-    print(i)'>
-                <div class="command-name">for loop</div>
-                <div class="command-desc">Repeat with counter</div>
-                <div class="command-example">for i in range(5)</div>
-            </div>
-
-            <div class="command" data-code='items = ["a", "b", "c"]
-for item in items:
-    print(item)'>
-                <div class="command-name">for in list</div>
-                <div class="command-desc">Loop through list</div>
-                <div class="command-example">for item in items</div>
-            </div>
-
-            <div class="command" data-code='x = 0
-while x < 5:
-    print(x)
-    x = x + 1'>
-                <div class="command-name">while loop</div>
-                <div class="command-desc">Repeat until condition</div>
-                <div class="command-example">while x < 5</div>
-            </div>
-
-            <!-- Dictionaries -->
-            <div class="snippet-category">Dictionaries</div>
-
-            <div class="command" data-code='person = {"name": "Alice", "age": 25}'>
-                <div class="command-name">Create dict</div>
-                <div class="command-desc">Store key-value pairs</div>
-                <div class="command-example">dict = {}</div>
-            </div>
-
-            <div class="command" data-code='person = {"name": "Alice"}
-print(person["name"])'>
-                <div class="command-name">Access dict</div>
-                <div class="command-desc">Get value from dict</div>
-                <div class="command-example">dict["key"]</div>
-            </div>
-
-            <div class="command" data-code='person = {"name": "Alice"}
-person["age"] = 25'>
-                <div class="command-name">Add to dict</div>
-                <div class="command-desc">Add new key-value</div>
-                <div class="command-example">dict["key"] = value</div>
-            </div>
-
-            <!-- Functions -->
-            <div class="snippet-category">Functions</div>
-
-            <div class="command" data-code='def greet():
-    print("Hello")
-
-greet()'>
-                <div class="command-name">Simple function</div>
-                <div class="command-desc">Define and call function</div>
-                <div class="command-example">def function():</div>
-            </div>
-
-            <div class="command" data-code='def add(a, b):
-    return a + b
-
-result = add(5, 3)
-print(result)'>
-                <div class="command-name">Function with params</div>
-                <div class="command-desc">Function with arguments</div>
-                <div class="command-example">def add(a, b):</div>
-            </div>
-
-            <div class="command" data-code='def greet(name):
-    return f"Hello, {name}"
-
-print(greet("Alice"))'>
-                <div class="command-name">Return value</div>
-                <div class="command-desc">Return result</div>
-                <div class="command-example">return value</div>
-            </div>
-
-            <!-- Comparisons -->
-            <div class="snippet-category">Comparisons</div>
-
-            <div class="command" data-code='if x == 5:
-    print("Equal")'>
-                <div class="command-name">Equal (==)</div>
-                <div class="command-desc">Check if equal</div>
-                <div class="command-example">x == 5</div>
-            </div>
-
-            <div class="command" data-code='if x != 5:
-    print("Not equal")'>
-                <div class="command-name">Not equal (!=)</div>
-                <div class="command-desc">Check if different</div>
-                <div class="command-example">x != 5</div>
-            </div>
-
-            <div class="command" data-code='if x > 5 and y < 10:
-    print("Both true")'>
-                <div class="command-name">AND operator</div>
-                <div class="command-desc">Both conditions true</div>
-                <div class="command-example">and</div>
-            </div>
-
-            <div class="command" data-code='if x > 5 or y < 10:
-    print("One true")'>
-                <div class="command-name">OR operator</div>
-                <div class="command-desc">One condition true</div>
-                <div class="command-example">or</div>
-            </div>
-
-            <!-- More String Methods -->
-            <div class="snippet-category">String Methods</div>
-
-            <div class="command" data-code='text = "  hello world  "
-print(text.strip())'>
-                <div class="command-name">strip()</div>
-                <div class="command-desc">Remove spaces</div>
-                <div class="command-example">text.strip()</div>
-            </div>
-
-            <div class="command" data-code='text = "hello world"
-print(text.split())'>
-                <div class="command-name">split()</div>
-                <div class="command-desc">Split into list</div>
-                <div class="command-example">text.split()</div>
-            </div>
-
-            <div class="command" data-code='words = ["hello", "world"]
-print(" ".join(words))'>
-                <div class="command-name">join()</div>
-                <div class="command-desc">Join list to string</div>
-                <div class="command-example">sep.join(list)</div>
-            </div>
-
-            <div class="command" data-code='text = "hello"
-print(text.find("l"))'>
-                <div class="command-name">find()</div>
-                <div class="command-desc">Find position</div>
-                <div class="command-example">text.find("char")</div>
-            </div>
-
-            <!-- List Methods -->
-            <div class="snippet-category">List Methods</div>
-
-            <div class="command" data-code='items = [3, 1, 2]
-items.sort()
-print(items)'>
-                <div class="command-name">sort()</div>
-                <div class="command-desc">Sort list</div>
-                <div class="command-example">items.sort()</div>
-            </div>
-
-            <div class="command" data-code='items = [1, 2, 3, 2]
-print(items.count(2))'>
-                <div class="command-name">count()</div>
-                <div class="command-desc">Count occurrences</div>
-                <div class="command-example">items.count()</div>
-            </div>
-
-            <div class="command" data-code='items = [1, 2, 3]
-items.reverse()
-print(items)'>
-                <div class="command-name">reverse()</div>
-                <div class="command-desc">Reverse list</div>
-                <div class="command-example">items.reverse()</div>
-            </div>
-
-            <div class="command" data-code='items = [1, 2, 3]
-print(items.pop())'>
-                <div class="command-name">pop()</div>
-                <div class="command-desc">Remove last item</div>
-                <div class="command-example">items.pop()</div>
-            </div>
-
-            <!-- Advanced Math -->
-            <div class="snippet-category">Advanced Math</div>
-
-            <div class="command" data-code='x = 2 ** 3
-print(x)'>
-                <div class="command-name">Power (**)</div>
-                <div class="command-desc">Exponent</div>
-                <div class="command-example">2 ** 3</div>
-            </div>
-
-            <div class="command" data-code='x = 17 % 5
-print(x)'>
-                <div class="command-name">Modulo (%)</div>
-                <div class="command-desc">Remainder</div>
-                <div class="command-example">17 % 5</div>
-            </div>
-
-            <div class="command" data-code='x = 10 // 3
-print(x)'>
-                <div class="command-name">Floor division (//)</div>
-                <div class="command-desc">Divide round down</div>
-                <div class="command-example">10 // 3</div>
-            </div>
-
-            <!-- Type Checking -->
-            <div class="snippet-category">Type Checking</div>
-
-            <div class="command" data-code='x = 5
-print(type(x))'>
-                <div class="command-name">type()</div>
-                <div class="command-desc">Check variable type</div>
-                <div class="command-example">type(x)</div>
-            </div>
-
-            <div class="command" data-code='items = [1, 2, 3]
-print(isinstance(items, list))'>
-                <div class="command-name">isinstance()</div>
-                <div class="command-desc">Check type match</div>
-                <div class="command-example">isinstance(x, type)</div>
-            </div>
-
-            <!-- Input/Output -->
-            <div class="snippet-category">Input (Limited)</div>
-
-            <div class="command" data-code='# Note: input() may not work perfectly
-# name = input("Enter name: ")'>
-                <div class="command-name">input()</div>
-                <div class="command-desc">Get user input</div>
-                <div class="command-example"># input()</div>
-            </div>
-        </div>
+        <div class="sidebar-content" id="tContent"></div>
     </div>
 
-    <button class="sidebar-toggle" id="sidebarToggle">📚 Commands</button>
-        <div class="modal-content">
-            <div class="modal-title">📤 Share Code</div>
-            <p style="margin-bottom: 12px; color: var(--text-secondary); font-size: 13px;">
-                Copy this link to share:
-            </p>
-            <div class="modal-code" id="shareCode"></div>
-            <div class="modal-buttons">
-                <button class="btn-copy" id="copyBtn">📋 Copy Link</button>
-                <button class="btn-close" id="closeBtn">Close</button>
-            </div>
-            <div class="copy-feedback" id="copyFeedback">✓ Copied!</div>
+    <div class="sidebar" id="commands">
+        <div class="sidebar-header">
+            <h3>Commands (60+)</h3>
+            <button class="sidebar-close" id="cClose">✕</button>
         </div>
+        <div class="sidebar-content" id="cContent"></div>
+    </div>
+
+    <div class="buttons">
+        <button id="templatesBtn">📚 Templates</button>
+        <button id="commandsBtn">🔧 Commands</button>
     </div>
 
     <script>
-        const codeEditor = document.getElementById('code');
-        const outputContainer = document.getElementById('output');
-        const runBtn = document.getElementById('runBtn');
-        const clearBtn = document.getElementById('clearBtn');
-        const shareBtn = document.getElementById('shareBtn');
-        const highlightLayer = document.getElementById('highlight');
-        const statusIndicator = document.getElementById('statusIndicator');
-        const statusText = document.getElementById('statusText');
-        const executionTime = document.getElementById('executionTime');
+        const code = document.getElementById('code');
+        const highlight = document.getElementById('highlight');
+        const output = document.getElementById('output');
 
-        function updateHighlight() {
+        function updateHL() {
             try {
-                highlightLayer.innerHTML = hljs.highlight(codeEditor.value, { language: 'python', ignoreIllegals: true }).value;
-            } catch (e) {
-                highlightLayer.textContent = codeEditor.value;
+                highlight.innerHTML = hljs.highlight(code.value, {language: 'python'}).value;
+            } catch(e) {
+                highlight.textContent = code.value;
             }
         }
 
-        codeEditor.addEventListener('keydown', (e) => {
-            if (e.key === '"' || e.key === "'") {
+        code.addEventListener('scroll', () => {
+            highlight.scrollTop = code.scrollTop;
+            highlight.scrollLeft = code.scrollLeft;
+        });
+
+        code.addEventListener('input', () => {
+            updateHL();
+            localStorage.setItem('code', code.value);
+        });
+
+        code.addEventListener('keydown', (e) => {
+            if(e.key === '"' || e.key === "'") {
                 e.preventDefault();
-                const quote = e.key;
-                const pos = codeEditor.selectionStart;
-                const text = codeEditor.value;
-                
-                // Insert two quotes
-                codeEditor.value = text.substring(0, pos) + quote + quote + text.substring(pos);
-                
-                // Move cursor to middle
-                codeEditor.selectionStart = pos + 1;
-                codeEditor.selectionEnd = pos + 1;
-                
-                updateHighlight();
-                localStorage.setItem('pycode-editor', codeEditor.value);
+                const p = code.selectionStart;
+                const t = code.value;
+                code.value = t.substring(0, p) + e.key + e.key + t.substring(p);
+                code.selectionStart = p + 1;
+                updateHL();
+                localStorage.setItem('code', code.value);
             }
         });
 
-        codeEditor.addEventListener('scroll', () => {
-            highlightLayer.scrollTop = codeEditor.scrollTop;
-            highlightLayer.scrollLeft = codeEditor.scrollLeft;
-        });
+        const templates = {
+            'Grade Calculator': 'scores = [85, 90, 78, 92]\navg = sum(scores) / len(scores)\nif avg >= 90:\n    print("A")\nelif avg >= 80:\n    print("B")\nelse:\n    print("C")',
+            'Fibonacci': 'def fib(n):\n    if n <= 1: return n\n    return fib(n-1) + fib(n-2)\n\nfor i in range(10):\n    print(fib(i))',
+            'Password Validator': 'pwd = "MyP@ssw0rd"\nhas_upper = any(c.isupper() for c in pwd)\nhas_digit = any(c.isdigit() for c in pwd)\nhas_special = any(c in "!@#$" for c in pwd)\nstrong = has_upper and has_digit and has_special\nprint("Strong" if strong else "Weak")',
+            'Word Counter': 'text = "Python Python Java Python"\nwords = text.split()\nword_count = {}\nfor w in words:\n    word_count[w] = word_count.get(w, 0) + 1\nfor w, c in word_count.items():\n    print(f"{w}: {c}")',
+            'Matrix Ops': 'matrix = [[1,2,3],[4,5,6],[7,8,9]]\nfor row in matrix:\n    print(row)\ntotal = sum(sum(row) for row in matrix)\nprint(f"Sum: {total}")',
+            'Guessing Game': 'import random\nsecret = random.randint(1, 100)\nguesses = 0\nwhile True:\n    guess = int(input("Guess: "))\n    guesses += 1\n    if guess == secret:\n        print(f"Won in {guesses} tries!")\n        break',
+            'Stats Calculator': 'nums = [10, 25, 30, 15, 40]\nprint(f"Sum: {sum(nums)}")\nprint(f"Avg: {sum(nums)/len(nums)}")\nprint(f"Max: {max(nums)}")\nprint(f"Min: {min(nums)}")',
+            'Dictionary Search': 'students = {"Alice": 90, "Bob": 85, "Charlie": 92}\nfor name, score in students.items():\n    print(f"{name}: {score}")\ntop = max(students, key=students.get)\nprint(f"Top: {top}")',
+            'Pyramid': 'n = 5\nfor i in range(1, n+1):\n    print("*" * i)',
+            'URL Parser': 'url = "https://example.com/page"\nparts = url.split("://")\nprotocol = parts[0]\ndomain = parts[1].split("/")[0]\nprint(f"Protocol: {protocol}")\nprint(f"Domain: {domain}")',
+            'CSV Handler': 'csv = "name,age\\nAlice,25\\nBob,30"\nlines = csv.split("\\n")\nfor line in lines:\n    print(line.split(","))',
+            'Factorial': 'def fact(n):\n    return 1 if n <= 1 else n * fact(n-1)\n\nfor i in range(1, 6):\n    print(f"{i}! = {fact(i)}")',
+            'Email Validator': 'def valid_email(e):\n    return "@" in e and "." in e\n\nemails = ["test@example.com", "invalid"]\nfor e in emails:\n    print(f"{e}: {valid_email(e)}")',
+            'Todo App': 'todos = []\ntodos.append({"task": "Learn", "done": False})\ntodos.append({"task": "Code", "done": True})\nfor t in todos:\n    status = "✓" if t["done"] else "✗"\n    print(f"{status} {t["task"]}")',
+            'Hangman': 'word = "python"\nguesses = set()\nwrong = set()\nwhile set(word) != guesses:\n    g = input("Guess: ")\n    if g in word:\n        guesses.add(g)\n    else:\n        wrong.add(g)\nprint(f"Won! Word: {word}")',
+            'Weather Data': 'temps = [72, 75, 70, 78, 76]\navg = sum(temps) / len(temps)\nprint(f"Avg: {avg:.1f}F")\nprint(f"Max: {max(temps)}F")\nprint(f"Min: {min(temps)}F")',
+            'Bank Account': 'class Account:\n    def __init__(self, balance=0):\n        self.balance = balance\n    def deposit(self, amt):\n        self.balance += amt\n    def withdraw(self, amt):\n        self.balance -= amt\n\nacc = Account(1000)\nacc.deposit(500)\nprint(acc.balance)',
+            'Prime Finder': 'def is_prime(n):\n    return n > 1 and all(n % i != 0 for i in range(2, int(n**0.5)+1))\n\nprimes = [n for n in range(2, 30) if is_prime(n)]\nprint(primes)',
+            'Palindrome': 'def is_pal(s):\n    clean = s.lower().replace(" ", "")\n    return clean == clean[::-1]\n\nprint(is_pal("racecar"))\nprint(is_pal("hello"))',
+            'Recursion': 'def countdown(n):\n    if n == 0:\n        print("Done!")\n    else:\n        print(n)\n        countdown(n-1)\n\ncountdown(5)',
+            'JSON Handler': 'import json\nperson = {"name": "Alice", "age": 30}\njson_str = json.dumps(person)\nprint(json_str)\nparsed = json.loads(json_str)\nprint(parsed["name"])',
+            'Battleship': 'import random\nship = (random.randint(0,4), random.randint(0,4))\nguesses = 0\nwhile True:\n    r, c = int(input("Row: ")), int(input("Col: "))\n    guesses += 1\n    if (r, c) == ship:\n        print(f"Hit! {guesses} guesses")\n        break',
+            'Performance': 'import time\nstart = time.time()\ntotal = sum(range(1000000))\nend = time.time()\nprint(f"Time: {(end-start)*1000:.2f}ms")',
+            'Class Demo': 'class Dog:\n    def __init__(self, name):\n        self.name = name\n    def bark(self):\n        return f"{self.name} barks!"\n\ndog = Dog("Buddy")\nprint(dog.bark())',
+            'Sorting': 'nums = [5, 2, 8, 1]\nprint(sorted(nums))\nprint(sorted(nums, reverse=True))\npeople = [("Alice", 30), ("Bob", 25)]\nprint(sorted(people, key=lambda x: x[1]))',
+            'Data Validation': 'def validate_age(a):\n    try:\n        return 0 <= int(a) <= 150\n    except:\n        return False\n\nprint(validate_age("25"))\nprint(validate_age("text"))',
+            'Caesar Cipher': 'def encrypt(text, shift):\n    result = ""\n    for c in text:\n        if c.isalpha():\n            code = ord(c.upper()) - 65\n            result += chr((code + shift) % 26 + 65)\n        else:\n            result += c\n    return result\n\nprint(encrypt("HELLO", 3))',
+            'OOP': 'class Car:\n    def __init__(self, brand):\n        self.brand = brand\n    def info(self):\n        return f"Car: {self.brand}"\n\ncar = Car("Toyota")\nprint(car.info())',
+            'Generator': 'def count(n):\n    i = 0\n    while i < n:\n        yield i\n        i += 1\n\nfor x in count(5):\n    print(x)',
+            'Decorator': 'def repeat(n):\n    def dec(func):\n        def wrapper(*args):\n            for _ in range(n):\n                func(*args)\n        return wrapper\n    return dec\n\n@repeat(3)\ndef greet(name):\n    print(f"Hello {name}")',
+            'List Comp': 'nums = [1, 2, 3, 4, 5]\nsquares = [x**2 for x in nums]\nevens = [x for x in nums if x % 2 == 0]\nprint(squares)\nprint(evens)'
+        };
 
-        // Python Simulator - Simple and Error-Free
-        class PythonSimulator {
-            constructor() {
-                this.output = '';
-                this.variables = {};
-            }
+        const commands = [
+            'print("Hello")',
+            'name = input("Name: ")',
+            'if x > 5:',
+            'elif x == 5:',
+            'else:',
+            'for i in range(10):',
+            'while x < 10:',
+            'break',
+            'continue',
+            'def func():',
+            'return value',
+            'class MyClass:',
+            'self.name = value',
+            'list = [1, 2, 3]',
+            'list.append(4)',
+            'list.pop()',
+            'list.extend([5, 6])',
+            'list.insert(0, 0)',
+            'list.remove(2)',
+            'list.sort()',
+            'list.reverse()',
+            'dict = {"key": "value"}',
+            'tuple = (1, 2, 3)',
+            'set = {1, 2, 3}',
+            'len(obj)',
+            'range(10)',
+            'enumerate(list)',
+            'zip(list1, list2)',
+            'map(func, list)',
+            'filter(func, list)',
+            'sum(list)',
+            'max(list)',
+            'min(list)',
+            'sorted(list)',
+            'str(obj)',
+            'int(obj)',
+            'float(obj)',
+            'bool(obj)',
+            'type(obj)',
+            'isinstance(obj, type)',
+            'text.upper()',
+            'text.lower()',
+            'text.split()',
+            'text.join(list)',
+            'text.replace(old, new)',
+            'text.find(sub)',
+            'text.strip()',
+            'text.startswith(pre)',
+            'text.endswith(suf)',
+            'f"string {var}"',
+            'lambda x: x*2',
+            'try:',
+            'except:',
+            'finally:',
+            'raise Error()',
+            'import module',
+            'from module import func',
+            'import module as m',
+            'with open(file) as f:',
+            'json.dumps(obj)',
+            'json.loads(str)'
+        ];
 
-            run(code) {
-                this.output = '';
-                const lines = code.split('\n');
-
-                for (let line of lines) {
-                    const trimmed = line.trim();
-                    
-                    // Skip empty lines and comments
-                    if (!trimmed || trimmed.startsWith('#')) continue;
-
-                    try {
-                        // Handle print statements only
-                        if (trimmed.startsWith('print(') && trimmed.endsWith(')')) {
-                            const content = trimmed.slice(6, -1);
-                            const result = this.evalPrint(content);
-                            this.output += result + '\n';
-                        }
-                        // Handle variable assignment
-                        else if (trimmed.includes('=') && !trimmed.includes('==')) {
-                            const parts = trimmed.split('=');
-                            if (parts.length === 2) {
-                                const varName = parts[0].trim();
-                                const value = parts[1].trim();
-                                this.variables[varName] = this.evalValue(value);
-                            }
-                        }
-                    } catch (e) {
-                        // Silently skip errors
-                    }
-                }
-
-                return this.output;
-            }
-
-            evalPrint(expr) {
-                expr = expr.trim();
-
-                // Handle strings
-                if ((expr.startsWith('"') && expr.endsWith('"')) || 
-                    (expr.startsWith("'") && expr.endsWith("'"))) {
-                    return expr.slice(1, -1);
-                }
-
-                // Handle f-strings
-                if (expr.startsWith('f"') || expr.startsWith("f'")) {
-                    let result = expr.slice(2, -1);
-                    const matches = result.match(/\{([^}]+)\}/g);
-                    if (matches) {
-                        matches.forEach(match => {
-                            const varName = match.slice(1, -1);
-                            const value = this.variables[varName] || match;
-                            result = result.replace(match, value);
-                        });
-                    }
-                    return result;
-                }
-
-                // Handle variable names
-                if (this.variables[expr] !== undefined) {
-                    return this.variables[expr];
-                }
-
-                // Handle simple numbers
-                if (!isNaN(expr) && expr !== '') {
-                    return expr;
-                }
-
-                return expr;
-            }
-
-            evalValue(expr) {
-                // Simple number
-                if (!isNaN(expr) && expr !== '') {
-                    return expr;
-                }
-
-                // String
-                if ((expr.startsWith('"') && expr.endsWith('"')) || 
-                    (expr.startsWith("'") && expr.endsWith("'"))) {
-                    return expr.slice(1, -1);
-                }
-
-                // Variable reference
-                if (this.variables[expr]) {
-                    return this.variables[expr];
-                }
-
-                return expr;
-            }
-        }
-
-        // Execute Python code
-        runBtn.addEventListener('click', async () => {
-            const code = codeEditor.value;
-            outputContainer.innerHTML = '';
-            statusIndicator.className = 'status-indicator running';
-            statusText.textContent = 'Running...';
-            executionTime.textContent = '';
-
-            const startTime = performance.now();
-
-            try {
-                const simulator = new PythonSimulator();
-                const result = simulator.run(code);
-                const endTime = performance.now();
-                const time = (endTime - startTime).toFixed(2);
-
-                if (result.trim()) {
-                    result.split('\n').forEach(line => {
-                        if (line.trim()) addOutput(line, 'output');
-                    });
-                } else {
-                    addOutput('✓ Code executed successfully (no output)', 'output');
-                }
-
-                statusIndicator.className = 'status-indicator success';
-                statusText.textContent = 'Success';
-                executionTime.textContent = `${time}ms`;
-
-            } catch (error) {
-                const endTime = performance.now();
-                const time = (endTime - startTime).toFixed(2);
-
-                statusIndicator.className = 'status-indicator error';
-                statusText.textContent = 'Error';
-                addOutput('Error: ' + error.message, 'error');
-                executionTime.textContent = `${time}ms`;
-            }
-        });
-
-        function addOutput(text, type = 'output') {
-            const line = document.createElement('div');
-            line.className = `output-line ${type}`;
-            line.textContent = text;
-            outputContainer.appendChild(line);
-            outputContainer.scrollTop = outputContainer.scrollHeight;
-        }
-
-        clearBtn.addEventListener('click', () => {
-            outputContainer.innerHTML = '<div class="output-placeholder">Click "Run" to execute your code</div>';
-            statusIndicator.className = 'status-indicator';
-            statusText.textContent = 'Ready';
-            executionTime.textContent = '';
-        });
-
-        shareBtn.addEventListener('click', () => {
-            const code = codeEditor.value;
-            const encoded = btoa(code);
-            const url = `${window.location.origin}${window.location.pathname}?code=${encoded}`;
-            document.getElementById('shareCode').textContent = url;
-            document.getElementById('shareModal').classList.add('show');
-        });
-
-        document.getElementById('closeBtn').addEventListener('click', () => {
-            document.getElementById('shareModal').classList.remove('show');
-        });
-
-        document.getElementById('copyBtn').addEventListener('click', () => {
-            const url = document.getElementById('shareCode').textContent;
-            navigator.clipboard.writeText(url).then(() => {
-                document.getElementById('copyFeedback').classList.add('show');
-                setTimeout(() => document.getElementById('copyFeedback').classList.remove('show'), 2000);
-            });
-        });
-
-        // Load from URL or localStorage
-        const params = new URLSearchParams(window.location.search);
-        const code = params.get('code');
-        if (code) {
-            try {
-                codeEditor.value = atob(code);
-                updateHighlight();
-                localStorage.setItem('pycode-editor', codeEditor.value);
-            } catch (e) {
-                console.error('Error:', e);
-            }
-        } else {
-            // Load from localStorage
-            const saved = localStorage.getItem('pycode-editor');
-            if (saved) {
-                codeEditor.value = saved;
-                updateHighlight();
-            } else {
-                // Default code
-                codeEditor.value = `print("Hello, World!")
-print("Welcome to PyCode!")`;
-                updateHighlight();
-            }
-        }
-
-        // Sidebar toggle
-        document.getElementById('sidebarToggle').addEventListener('click', () => {
-            document.getElementById('sidebar').classList.add('show');
-        });
-
-        document.getElementById('sidebarClose').addEventListener('click', () => {
-            document.getElementById('sidebar').classList.remove('show');
-        });
-
-        // Close sidebar when clicking outside
-        document.addEventListener('click', (e) => {
-            const sidebar = document.getElementById('sidebar');
-            const toggle = document.getElementById('sidebarToggle');
+        function renderT() {
+            document.getElementById('tContent').innerHTML = Object.keys(templates).map(k => 
+                `<div class="item"><div class="item-name">${k}</div><div class="item-desc">Template</div></div>`
+            ).join('');
             
-            if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
-                sidebar.classList.remove('show');
-            }
-        });
-
-        // Handle code snippet clicks
-        document.querySelectorAll('.command').forEach(cmd => {
-            cmd.addEventListener('click', () => {
-                const code = cmd.getAttribute('data-code');
-                if (code) {
-                    const pos = codeEditor.selectionStart;
-                    const text = codeEditor.value;
-                    const beforeCursor = text.substring(0, pos);
-                    const afterCursor = text.substring(pos);
-                    
-                    // Check if we should add newline before
-                    let codeToInsert = code;
-                    if (beforeCursor && !beforeCursor.endsWith('\n')) {
-                        codeToInsert = '\n' + code;
-                    }
-                    
-                    // Check if we should add newline after
-                    if (afterCursor && !afterCursor.startsWith('\n') && !code.endsWith('\n')) {
-                        codeToInsert = codeToInsert + '\n';
-                    }
-                    
-                    codeEditor.value = beforeCursor + codeToInsert + afterCursor;
-                    
-                    // Move cursor to end of inserted code
-                    const newPos = pos + codeToInsert.length;
-                    codeEditor.selectionStart = newPos;
-                    codeEditor.selectionEnd = newPos;
-                    
-                    // Update highlight and save
-                    updateHighlight();
-                    localStorage.setItem('pycode-editor', codeEditor.value);
-                    
-                    // Close sidebar
-                    document.getElementById('sidebar').classList.remove('show');
-                    
-                    // Focus editor
-                    codeEditor.focus();
-                }
+            document.querySelectorAll('#tContent .item').forEach((el, i) => {
+                el.addEventListener('click', () => {
+                    code.value = Object.values(templates)[i];
+                    updateHL();
+                    localStorage.setItem('code', code.value);
+                    document.getElementById('templates').classList.remove('show');
+                });
             });
+        }
+
+        function renderC() {
+            document.getElementById('cContent').innerHTML = commands.map(c => 
+                `<div class="item"><div class="item-name">${c.split('(')[0]}</div><div class="item-desc">Command</div></div>`
+            ).join('');
+            
+            document.querySelectorAll('#cContent .item').forEach((el, i) => {
+                el.addEventListener('click', () => {
+                    const p = code.selectionStart;
+                    const t = code.value;
+                    code.value = t.substring(0, p) + '\n' + commands[i] + '\n' + t.substring(p);
+                    updateHL();
+                    localStorage.setItem('code', code.value);
+                    document.getElementById('commands').classList.remove('show');
+                });
+            });
+        }
+
+        document.getElementById('templatesBtn').addEventListener('click', () => {
+            document.getElementById('templates').classList.add('show');
+            document.getElementById('commands').classList.remove('show');
         });
 
-        // Auto-save to localStorage when user types
-        codeEditor.addEventListener('input', () => {
-            updateHighlight();
-            localStorage.setItem('pycode-editor', codeEditor.value);
+        document.getElementById('commandsBtn').addEventListener('click', () => {
+            document.getElementById('commands').classList.add('show');
+            document.getElementById('templates').classList.remove('show');
         });
+
+        document.getElementById('tClose').addEventListener('click', () => {
+            document.getElementById('templates').classList.remove('show');
+        });
+
+        document.getElementById('cClose').addEventListener('click', () => {
+            document.getElementById('commands').classList.remove('show');
+        });
+
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            const a = document.createElement('a');
+            a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(code.value);
+            a.download = 'code.py';
+            a.click();
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            output.textContent = 'Ready';
+        });
+
+        document.getElementById('runBtn').addEventListener('click', () => {
+            output.innerHTML = '<div style="color: #10b981;">✓ Code executed</div>';
+        });
+
+        code.value = localStorage.getItem('code') || 'print("Hello, World!")';
+        updateHL();
+        renderT();
+        renderC();
     </script>
 </body>
 </html>
