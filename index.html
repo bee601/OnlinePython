@@ -369,6 +369,124 @@
                 flex-direction: column;
             }
         }
+
+        .sidebar {
+            position: fixed;
+            left: -350px;
+            top: 0;
+            width: 350px;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--border-color);
+            z-index: 999;
+            transition: left 0.3s ease;
+            overflow-y: auto;
+            padding-top: 60px;
+        }
+
+        .sidebar.show {
+            left: 0;
+        }
+
+        .sidebar-header {
+            position: fixed;
+            top: 0;
+            left: -350px;
+            width: 350px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            transition: left 0.3s ease;
+        }
+
+        .sidebar.show .sidebar-header {
+            left: 0;
+        }
+
+        .sidebar-header h3 {
+            color: var(--text-primary);
+            font-size: 18px;
+        }
+
+        .sidebar-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .sidebar-content {
+            padding: 20px;
+        }
+
+        .command {
+            background: rgba(51, 65, 85, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .command:hover {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: var(--accent-blue);
+        }
+
+        .command-name {
+            color: var(--accent-blue);
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .command-desc {
+            color: var(--text-secondary);
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .command-example {
+            background: rgba(15, 23, 42, 0.8);
+            border-left: 2px solid var(--accent-purple);
+            color: #10b981;
+            font-size: 11px;
+            padding: 6px 8px;
+            border-radius: 4px;
+            font-family: 'Fira Code', monospace;
+            line-height: 1.4;
+        }
+
+        .sidebar-toggle {
+            position: fixed;
+            left: 20px;
+            bottom: 20px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            color: white;
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 50;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .sidebar-toggle:hover {
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
@@ -408,7 +526,57 @@
         </div>
     </div>
 
-    <div class="modal" id="shareModal">
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>Commands</h3>
+            <button class="sidebar-close" id="sidebarClose">✕</button>
+        </div>
+        <div class="sidebar-content">
+            <div class="command">
+                <div class="command-name">print()</div>
+                <div class="command-desc">Output text to console</div>
+                <div class="command-example">print("Hello")</div>
+            </div>
+
+            <div class="command">
+                <div class="command-name">Variables</div>
+                <div class="command-desc">Store values in memory</div>
+                <div class="command-example">x = 10<br>name = "Bob"</div>
+            </div>
+
+            <div class="command">
+                <div class="command-name">Strings</div>
+                <div class="command-desc">Text values with quotes</div>
+                <div class="command-example">text = "Hello"<br>print(text)</div>
+            </div>
+
+            <div class="command">
+                <div class="command-name">Numbers</div>
+                <div class="command-desc">Integer and float values</div>
+                <div class="command-example">x = 5<br>y = 3.14</div>
+            </div>
+
+            <div class="command">
+                <div class="command-name">f-strings</div>
+                <div class="command-desc">Insert variables in text</div>
+                <div class="command-example">name = "Alice"<br>print(f"Hi {name}")</div>
+            </div>
+
+            <div class="command">
+                <div class="command-name">Comments</div>
+                <div class="command-desc">Explain your code</div>
+                <div class="command-example"># This is a comment</div>
+            </div>
+
+            <div class="command">
+                <div class="command-name">Math</div>
+                <div class="command-desc">Basic calculations</div>
+                <div class="command-example">x = 5 + 3<br>y = 10 * 2</div>
+            </div>
+        </div>
+    </div>
+
+    <button class="sidebar-toggle" id="sidebarToggle">📚 Commands</button>
         <div class="modal-content">
             <div class="modal-title">📤 Share Code</div>
             <p style="margin-bottom: 12px; color: var(--text-secondary); font-size: 13px;">
@@ -443,7 +611,6 @@
         }
 
         codeEditor.addEventListener('keydown', (e) => {
-            // Auto-close quotes
             if (e.key === '"' || e.key === "'") {
                 e.preventDefault();
                 const quote = e.key;
@@ -664,14 +831,27 @@ print("Welcome to PyCode!")`;
             }
         }
 
+        // Sidebar toggle
+        document.getElementById('sidebarToggle').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.add('show');
+        });
+
+        document.getElementById('sidebarClose').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.remove('show');
+        });
+
+        // Close sidebar when clicking outside
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.getElementById('sidebarToggle');
+            
+            if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
+                sidebar.classList.remove('show');
+            }
+        });
+
         // Auto-save to localStorage when user types
         codeEditor.addEventListener('input', () => {
-            // Convert to lowercase
-            const cursorPos = codeEditor.selectionStart;
-            codeEditor.value = codeEditor.value.toLowerCase();
-            codeEditor.selectionStart = cursorPos;
-            codeEditor.selectionEnd = cursorPos;
-            
             updateHighlight();
             localStorage.setItem('pycode-editor', codeEditor.value);
         });
