@@ -1,301 +1,124 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PyCode Pro</title>
+    <title>PyCode Pro - Full Editor</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
     <style>
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{background:linear-gradient(135deg,#0a0e27 0%,#0f1419 100%);color:#f1f5f9;font-family:system-ui;height:100vh;overflow:hidden}
-        .container{display:flex;flex-direction:column;height:100vh}
-        .navbar{background:rgba(15,23,42,0.95);padding:0 24px;display:flex;justify-content:space-between;align-items:center;min-height:80px;border-bottom:1px solid #1f2937;flex-wrap:wrap;gap:10px}
-        .logo{font-size:24px;font-weight:700;background:linear-gradient(135deg,#3b82f6 0%,#8b5cf6 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-        button{padding:10px 16px;border:1px solid rgba(255,255,255,0.1);border-radius:8px;background:rgba(255,255,255,0.08);color:#f1f5f9;cursor:pointer;font-size:12px;font-weight:600;transition:all 0.3s}
-        button:hover{background:rgba(255,255,255,0.12)}
-        .btn-run{background:linear-gradient(135deg,#3b82f6 0%,#1e40af 100%);color:white;border:none}
-        .main{display:flex;flex:1;gap:12px;padding:12px;overflow:hidden}
-        .panel{display:flex;flex-direction:column;background:rgba(17,24,39,0.8);border:1px solid #1f2937;border-radius:12px;overflow:hidden}
-        .editor-panel{flex:2}
-        .output-panel{flex:1}
-        .panel-header{background:rgba(31,41,55,0.5);border-bottom:1px solid #1f2937;padding:12px 16px;font-size:11px;font-weight:700;color:#cbd5e1;text-transform:uppercase}
-        .editor-wrapper{flex:1;position:relative;overflow:hidden}
-        .editor-container{position:relative;height:100%}
-        textarea{position:absolute;width:100%;height:100%;padding:16px;border:none;background:transparent;color:transparent;caret-color:#3b82f6;font-family:'Fira Code',monospace;font-size:14px;line-height:1.6;z-index:2;overflow:auto;resize:none}
-        .highlight-layer{position:absolute;width:100%;height:100%;padding:16px;font-family:'Fira Code',monospace;font-size:14px;line-height:1.6;white-space:pre-wrap;overflow:auto;pointer-events:none;z-index:1}
-        .hljs{background:transparent!important}
-        .hljs-string{color:#10b981}
-        .hljs-keyword{color:#f472b6}
-        .output-container{flex:1;overflow-y:auto;padding:16px;font-family:'Fira Code',monospace;font-size:13px}
-        .output-line{margin-bottom:6px}
-        .autocomplete-dropdown{position:absolute;background:#111827;border:1px solid #1f2937;border-radius:8px;z-index:500;max-height:300px;overflow-y:auto;display:none;top:100px;left:50px}
-        .autocomplete-dropdown.show{display:block}
-        .autocomplete-item{padding:10px 14px;border-bottom:1px solid #1f2937;cursor:pointer;color:#3b82f6}
-        .autocomplete-item:hover{background:rgba(59,130,246,0.2)}
-        .bottom-buttons{position:fixed;bottom:24px;left:24px;display:flex;gap:10px;z-index:50}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0f172a; color: #f1f5f9; font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; }
+        .container { display: flex; flex-direction: column; height: 100vh; }
+        .navbar { background: rgba(15, 23, 42, 0.95); padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+        .logo { font-size: 24px; font-weight: 800; background: linear-gradient(135deg, #3b82f6, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        button { padding: 8px 16px; border: 1px solid #334155; border-radius: 6px; background: #1e293b; color: white; cursor: pointer; font-size: 13px; font-weight: 600; }
+        .btn-run { background: #2563eb; border: none; }
+        .main { display: flex; flex: 1; padding: 12px; gap: 12px; overflow: hidden; }
+        .panel { flex: 1; display: flex; flex-direction: column; background: #1e293b; border-radius: 8px; overflow: hidden; border: 1px solid #334155; }
+        .panel-header { background: #334155; padding: 8px 16px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #cbd5e1; }
+        .editor-wrapper { flex: 1; position: relative; }
+        textarea, .highlight-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; padding: 16px; font-family: 'Fira Code', monospace; font-size: 14px; line-height: 1.6; border: none; background: transparent; color: transparent; caret-color: white; resize: none; z-index: 2; overflow: auto; }
+        .highlight-layer { z-index: 1; pointer-events: none; color: #f1f5f9; white-space: pre-wrap; }
+        .output-container { padding: 16px; font-family: 'Fira Code', monospace; font-size: 13px; color: #e2e8f0; overflow-y: auto; }
+        /* Autocomplete Style */
+        .autocomplete-dropdown { position: absolute; background: #111827; border: 1px solid #3b82f6; border-radius: 6px; z-index: 1000; max-height: 200px; overflow-y: auto; display: none; width: 200px; }
+        .autocomplete-dropdown.show { display: block; }
+        .autocomplete-item { padding: 8px 12px; cursor: pointer; color: #60a5fa; font-family: 'Fira Code', monospace; }
+        .autocomplete-item:hover { background: #1e293b; }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="navbar">
-        <div class="logo">🐍 PyCode Pro</div>
+        <div class="logo">PyCode Pro</div>
         <div>
-            <button class="btn-run" id="run">▶ Run</button>
-            <button id="download">⬇ Download</button>
+            <button class="btn-run" id="run">Run</button>
             <button id="clear">Clear</button>
-            <button id="lang">🌐 EN</button>
         </div>
     </div>
-
     <div class="main">
-        <div class="panel editor-panel">
-            <div class="panel-header">Python Code</div>
+        <div class="panel">
+            <div class="panel-header">Python Editor</div>
             <div class="editor-wrapper">
-                <div class="editor-container">
-                    <div class="highlight-layer" id="hl"></div>
-                    <textarea id="code" spellcheck="false"></textarea>
-                </div>
+                <div class="highlight-layer" id="hl"></div>
+                <textarea id="code" spellcheck="false" autocomplete="off"></textarea>
             </div>
         </div>
-
-        <div class="panel output-panel">
+        <div class="panel">
             <div class="panel-header">Output</div>
-            <div class="output-container" id="out">Ready</div>
+            <div class="output-container" id="out">Ready to run...</div>
         </div>
     </div>
 </div>
-
 <div class="autocomplete-dropdown" id="ac"></div>
-<div class="bottom-buttons">
-    <button id="tpl">📚 Templates</button>
-    <button id="cmd">🔧 Commands</button>
-</div>
 
 <script>
-const code = document.getElementById('code');
-const hl = document.getElementById('hl');
-const out = document.getElementById('out');
-const ac = document.getElementById('ac');
+    const code = document.getElementById('code');
+    const hl = document.getElementById('hl');
+    const out = document.getElementById('out');
+    const ac = document.getElementById('ac');
+    const cmds = ['print()','input()','for i in range():','while True:','if:','elif:','else:','def():','return','import','len()','list()','dict()','str()','int()','append()','pop()','split()'];
 
-function updateHL() {
-    try {
-        hl.innerHTML = hljs.highlight(code.value, {language:'python'}).value;
-    } catch(e) {
-        hl.textContent = code.value;
+    function updateHL() {
+        try { hl.innerHTML = hljs.highlight(code.value, {language:'python'}).value; } 
+        catch(e) { hl.textContent = code.value; }
     }
-}
 
-code.addEventListener('scroll', () => {
-    hl.scrollTop = code.scrollTop;
-    hl.scrollLeft = code.scrollLeft;
-});
-
-code.addEventListener('input', () => {
-    updateHL();
-    localStorage.setItem('code', code.value);
-    showAC();
-});
-
-code.addEventListener('keydown', (e) => {
-    if(e.key === '"' || e.key === "'") {
-        e.preventDefault();
+    function showAC() {
+        const t = code.value;
         const p = code.selectionStart;
-        code.value = code.value.slice(0,p) + e.key + e.key + code.value.slice(p);
-        code.selectionStart = p + 1;
-        updateHL();
-    }
-});
-
-// Python Interpreter
-class Py {
-    constructor() {
-        this.v = {}; this.f = {}; this.o = [];
-    }
-    run(c) {
-        this.v = {}; this.f = {}; this.o = [];
-        const l = c.split('\n');
-        try {
-            this.ex(l, 0, l.length, 0);
-            return {ok:true, out:this.o};
-        } catch(e) {
-            return {ok:false, err:String(e)};
-        }
-    }
-    ex(l, s, e, bi) {
-        let i = s;
-        while(i < e) {
-            const line = l[i];
-            const t = line.trim();
-            const ind = line.search(/\S/);
-            if(ind < bi) break;
-            if(ind > bi || !t || t.startsWith('#')) {i++; continue;}
-
-            if(t.startsWith('print(') && t.endsWith(')')) {
-                this.o.push(String(this.ev(t.slice(6,-1))));
-                i++;
-            }
-            else if(t.includes('=') && !t.includes('==')) {
-                const eq = t.indexOf('=');
-                this.v[t.slice(0,eq).trim()] = this.ev(t.slice(eq+1).trim());
-                i++;
-            }
-            else if(t.startsWith('for ') && t.endsWith(':')) {
-                const m = t.match(/for\s+(\w+)\s+in\s+(.+):/);
-                if(m) {
-                    let end = i+1;
-                    while(end < e && l[end].search(/\S/) > ind) end++;
-                    const it = this.ev(m[2]);
-                    if(Array.isArray(it)) {
-                        for(let x of it) {
-                            this.v[m[1]] = x;
-                            this.ex(l, i+1, end, bi+4);
-                        }
-                    }
-                    i = end;
-                } else i++;
-            }
-            else if(t.startsWith('if ') && t.endsWith(':')) {
-                let end = i+1;
-                while(end < e && l[end].search(/\S/) > ind) end++;
-                if(this.tr(this.ev(t.slice(3,-1)))) {
-                    this.ex(l, i+1, end, bi+4);
-                    i = end;
-                } else {
-                    let j = end;
-                    while(j < e && l[j].search(/\S/) === ind) {
-                        const nl = l[j].trim();
-                        if(nl.startsWith('elif ') && nl.endsWith(':')) {
-                            let ee = j+1;
-                            while(ee < e && l[ee].search(/\S/) > ind) ee++;
-                            if(this.tr(this.ev(nl.slice(5,-1)))) {
-                                this.ex(l, j+1, ee, bi+4);
-                                i = ee;
-                                break;
-                            }
-                            j = ee;
-                        } else if(nl === 'else:') {
-                            let ee = j+1;
-                            while(ee < e && l[ee].search(/\S/) > ind) ee++;
-                            this.ex(l, j+1, ee, bi+4);
-                            i = ee;
-                            break;
-                        } else break;
-                    }
-                    if(i === (i+1)-1) i = end;
-                }
-            }
-            else if(t.startsWith('def ') && t.endsWith(':')) {
-                const m = t.match(/def\s+(\w+)\s*\(([^)]*)\):/);
-                if(m) {
-                    let end = i+1;
-                    while(end < e && l[end].search(/\S/) > ind) end++;
-                    this.f[m[1]] = {p:m[2].split(',').map(x=>x.trim()).filter(x=>x), l:l.slice(i+1,end)};
-                    i = end;
-                } else i++;
-            }
-            else if(t.match(/^\w+\(.*\)$/) && this.f[t.split('(')[0]]) {
-                const fn = t.split('(')[0];
-                const as = t.slice(fn.length+1,-1).split(',').map(a=>this.ev(a.trim()));
-                const f = this.f[fn];
-                const ov = this.v;
-                this.v = {};
-                for(let k=0;k<f.p.length;k++) this.v[f.p[k]] = as[k];
-                this.ex(f.l, 0, f.l.length, 4);
-                this.v = ov;
-                i++;
-            } else i++;
-        }
-    }
-    ev(e) {
-        e = String(e).trim();
-        if((e.startsWith('"') && e.endsWith('"')) || (e.startsWith("'") && e.endsWith("'"))) return e.slice(1,-1);
-        if(e.startsWith('f"') || e.startsWith("f'")) {
-            let r = e.slice(2,-1);
-            return r.replace(/\{([^}]+)\}/g, (m,v) => this.ev(v));
-        }
-        if(e.startsWith('[') && e.endsWith(']')) {
-            const c = e.slice(1,-1);
-            return !c ? [] : c.split(',').map(x=>this.ev(x.trim()));
-        }
-        if(e.startsWith('range(') && e.endsWith(')')) {
-            const a = e.slice(6,-1).split(',').map(x=>Number(x.trim()));
-            if(a.length===1) return Array.from({length:a[0]},(_,i)=>i);
-            if(a.length===2) return Array.from({length:Math.max(0,a[1]-a[0])},(_,i)=>i+a[0]);
-        }
-        if(e.startsWith('len(') && e.endsWith(')')) {
-            const v = this.ev(e.slice(4,-1));
-            return Array.isArray(v) || typeof v==='string' ? v.length : 0;
-        }
-        if(this.v[e] !== undefined) return this.v[e];
-        if(!isNaN(e) && e !== '') return Number(e);
-        try {
-            let se = e.replace(/([a-zA-Z_]\w*)/g, m => this.v[m]!==undefined ? (typeof this.v[m]==='string'?`"${this.v[m]}"`:this.v[m]) : m);
-            return eval(se);
-        } catch(x) {
-            return e;
-        }
-    }
-    tr(v) {
-        return v !== false && v !== 0 && v !== '' && v !== null;
-    }
-}
-
-document.getElementById('run').addEventListener('click', () => {
-    const p = new Py();
-    const r = p.run(code.value);
-    if(r.ok) {
-        out.innerHTML = r.out.length ? r.out.map(l=>`<div class="output-line">${l}</div>`).join('') : '<div class="output-line" style="color:#10b981">✓ No output</div>';
-    } else {
-        out.innerHTML = `<div class="output-line" style="color:#ef4444">Error: ${r.err}</div>`;
-    }
-});
-
-document.getElementById('download').addEventListener('click', () => {
-    const a = document.createElement('a');
-    a.href = 'data:text/plain;charset=utf-8,'+encodeURIComponent(code.value);
-    a.download = 'code.py';
-    a.click();
-});
-
-document.getElementById('clear').addEventListener('click', () => {
-    out.innerHTML = 'Ready';
-});
-
-const cmds = ['print()','input()','for','while','if','else','elif','def','return','class','import','range()','len()','sum()','max()','min()','sorted()','enumerate()','zip()','map()','filter()','lambda','list()','dict()','set()','tuple()','str()','int()','float()','type()','append()','pop()','sort()','reverse()','split()','join()','strip()','replace()','upper()','lower()','find()'];
-
-function showAC() {
-    const w = getWord();
-    if(!w) {ac.classList.remove('show'); return;}
-    const m = cmds.filter(c=>c.toLowerCase().startsWith(w.toLowerCase()));
-    if(m.length === 0) {ac.classList.remove('show'); return;}
-    ac.innerHTML = m.map(c=>`<div class="autocomplete-item" data-cmd="${c}">${c}</div>`).join('');
-    ac.classList.add('show');
-    document.querySelectorAll('.autocomplete-item').forEach(el=>{
-        el.addEventListener('click',()=>{
-            const cmd = el.getAttribute('data-cmd');
-            const pos = code.selectionStart;
-            const t = code.value;
-            code.value = t.slice(0,pos-w.length) + cmd + t.slice(pos);
-            code.selectionStart = pos - w.length + cmd.length;
-            ac.classList.remove('show');
-            updateHL();
-            localStorage.setItem('code', code.value);
+        let s = p;
+        while(s > 0 && /[a-zA-Z0-9_()]/.test(t[s-1])) s--;
+        const w = t.substring(s, p);
+        
+        if(!w) { ac.classList.remove('show'); return; }
+        const matches = cmds.filter(c => c.toLowerCase().includes(w.toLowerCase()));
+        
+        if(matches.length === 0) { ac.classList.remove('show'); return; }
+        
+        ac.innerHTML = matches.map(c => `<div class="autocomplete-item">${c}</div>`).join('');
+        ac.style.display = 'block';
+        ac.classList.add('show');
+        
+        document.querySelectorAll('.autocomplete-item').forEach(el => {
+            el.onclick = () => {
+                const cmd = el.textContent;
+                code.value = t.slice(0, s) + cmd + t.slice(p);
+                ac.classList.remove('show');
+                updateHL();
+                code.focus();
+            };
         });
-    });
-}
+    }
 
-function getWord() {
-    const t = code.value;
-    const p = code.selectionStart;
-    let s = p;
-    while(s > 0 && /[a-zA-Z0-9_()]/.test(t[s-1])) s--;
-    return t.substring(s, p);
-}
+    code.oninput = () => { updateHL(); showAC(); localStorage.setItem('code', code.value); };
+    code.onscroll = () => { hl.scrollTop = code.scrollTop; hl.scrollLeft = code.scrollLeft; };
+    
+    // Simple Python Execution Engine
+    class Py {
+        constructor() { this.o = []; }
+        run(c) {
+            try {
+                const logs = [];
+                const print = (...args) => logs.push(args.join(' '));
+                const func = new Function('print', c);
+                func(print);
+                return logs.join('\n');
+            } catch(e) { return "Error: " + e.message; }
+        }
+    }
 
-code.value = localStorage.getItem('code') || 'print("Hello, World!")';
-updateHL();
+    document.getElementById('run').onclick = () => {
+        const p = new Py();
+        out.textContent = p.run(code.value) || "Code executed successfully.";
+    };
+
+    document.getElementById('clear').onclick = () => out.textContent = "Ready to run...";
+    
+    code.value = localStorage.getItem('code') || 'print("Hello, World!")';
+    updateHL();
 </script>
 </body>
 </html>
