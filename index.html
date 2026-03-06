@@ -3,193 +3,433 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PyCode - Python Editor</title>
+    <title>PyCode - Professional Python Editor</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --bg: #0f172a;
+            --bg-dark: #0a0e27;
+            --bg-card: #111827;
+            --bg-hover: #1f2937;
             --blue: #3b82f6;
-            --text: #f1f5f9;
-            --gray: #cbd5e1;
-            --border: rgba(148, 163, 184, 0.2);
+            --blue-dark: #1e40af;
+            --purple: #8b5cf6;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border: #1f2937;
+            --success: #10b981;
         }
+        
+        html, body { height: 100%; }
         body {
-            background: linear-gradient(135deg, var(--bg) 0%, #1a1f35 100%);
-            color: var(--text);
-            font-family: 'Inter', sans-serif;
-            height: 100vh;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #0f1419 100%);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
             overflow: hidden;
         }
-        .container { display: flex; height: 100vh; flex-direction: column; }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* NAVBAR */
         .navbar {
-            background: rgba(15, 23, 42, 0.8);
-            padding: 16px 24px;
+            background: linear-gradient(90deg, rgba(15, 23, 42, 0.95) 0%, rgba(20, 30, 48, 0.95) 100%);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
             display: flex;
             justify-content: space-between;
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
+            align-items: center;
+            height: 70px;
+            position: relative;
             z-index: 100;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        .logo { font-size: 24px; font-weight: 800; }
-        .controls { display: flex; gap: 10px; }
+
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            font-size: 32px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .navbar-divider {
+            width: 1px;
+            height: 30px;
+            background: var(--border);
+        }
+
+        .nav-info {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .nav-info-label {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .navbar-center {
+            display: flex;
+            gap: 8px;
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* BUTTONS */
         button {
-            padding: 10px 16px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            background: rgba(255,255,255,0.1);
-            color: var(--text);
-            cursor: pointer;
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
             font-size: 12px;
             font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
-        button:hover { background: rgba(255,255,255,0.2); }
+
         .btn-run {
-            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
             color: white;
-            border: 1px solid rgba(59, 130, 246, 0.5);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
         }
-        .main { display: flex; flex: 1; gap: 12px; padding: 12px; overflow: hidden; }
-        .editor-section, .output-section {
+
+        .btn-run:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .btn-lang {
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--purple);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-lang:hover {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: rgba(139, 92, 246, 0.5);
+        }
+
+        /* MAIN CONTENT */
+        .main {
+            display: flex;
+            flex: 1;
+            gap: 16px;
+            padding: 16px;
+            overflow: hidden;
+        }
+
+        .editor-panel, .output-panel {
             flex: 1;
             display: flex;
             flex-direction: column;
-            background: rgba(30, 41, 59, 0.8);
+            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(17, 24, 39, 0.5) 100%);
             border: 1px solid var(--border);
-            border-radius: 10px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .panel-header {
+            background: linear-gradient(90deg, rgba(31, 41, 55, 0.5) 0%, rgba(20, 30, 48, 0.3) 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 18px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .editor-wrapper {
+            flex: 1;
+            position: relative;
             overflow: hidden;
         }
-        .header {
-            background: rgba(51, 65, 85, 0.5);
-            border-bottom: 1px solid var(--border);
-            padding: 10px 16px;
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--gray);
+
+        .editor-container {
+            position: relative;
+            height: 100%;
         }
-        .editor-wrapper { flex: 1; position: relative; overflow: hidden; }
-        .editor-container { position: relative; height: 100%; }
+
         textarea {
             position: absolute;
             width: 100%;
             height: 100%;
-            padding: 16px;
+            padding: 20px;
             border: none;
             background: transparent;
             color: transparent;
-            caret-color: #3b82f6;
-            font-family: 'Fira Code', monospace;
+            caret-color: var(--blue);
+            font-family: 'Fira Code', 'Monaco', monospace;
             font-size: 14px;
-            line-height: 1.6;
+            line-height: 1.7;
             z-index: 2;
             overflow: auto;
             resize: none;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(139, 92, 246, 0.3) transparent;
         }
+
+        textarea::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        textarea::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        textarea::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.3);
+            border-radius: 4px;
+        }
+
         .highlight-layer {
             position: absolute;
             width: 100%;
             height: 100%;
-            padding: 16px;
-            font-family: 'Fira Code', monospace;
+            padding: 20px;
+            font-family: 'Fira Code', 'Monaco', monospace;
             font-size: 14px;
-            line-height: 1.6;
+            line-height: 1.7;
             white-space: pre-wrap;
             overflow: auto;
             pointer-events: none;
             z-index: 1;
         }
-        .hljs { background: transparent !important; }
+
+        .hljs {
+            background: transparent !important;
+            color: var(--text-primary) !important;
+        }
+
         .hljs-string { color: #10b981; }
         .hljs-keyword { color: #f472b6; }
+        .hljs-number { color: #3b82f6; }
+        .hljs-built_in { color: #8b5cf6; }
+        .hljs-comment { color: #6b7280; }
+
         .output-container {
             flex: 1;
             overflow-y: auto;
-            padding: 16px;
-            font-family: 'Fira Code', monospace;
+            padding: 20px;
+            font-family: 'Fira Code', 'Monaco', monospace;
             font-size: 13px;
+            line-height: 1.6;
         }
+
+        .output-line {
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .output-placeholder {
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        /* SIDEBAR */
         .sidebar {
             position: fixed;
-            left: -380px;
+            left: -400px;
             top: 0;
-            width: 380px;
+            width: 400px;
             height: 100vh;
-            background: rgba(15, 23, 42, 0.95);
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(10, 14, 39, 0.98) 100%);
+            backdrop-filter: blur(10px);
             border-right: 1px solid var(--border);
             z-index: 999;
-            transition: left 0.3s;
+            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             overflow-y: auto;
-            padding-top: 60px;
+            padding-top: 70px;
         }
+
         .sidebar.show { left: 0; }
+
         .sidebar-header {
             position: fixed;
             top: 0;
-            left: -380px;
-            width: 380px;
-            background: rgba(15, 23, 42, 0.8);
-            padding: 16px;
+            left: -400px;
+            width: 400px;
+            height: 70px;
+            background: linear-gradient(90deg, rgba(15, 23, 42, 0.98) 0%, rgba(20, 30, 48, 0.98) 100%);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 20px;
             display: flex;
             justify-content: space-between;
-            border-bottom: 1px solid var(--border);
+            align-items: center;
             z-index: 1000;
-            transition: left 0.3s;
+            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
         .sidebar.show .sidebar-header { left: 0; }
-        .sidebar-header h3 { font-size: 16px; }
+
+        .sidebar-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
         .sidebar-close {
             background: none;
             border: none;
-            color: var(--gray);
-            font-size: 20px;
+            color: var(--text-secondary);
+            font-size: 24px;
             cursor: pointer;
             padding: 0;
-        }
-        .sidebar-content { padding: 16px; }
-        .item {
-            background: rgba(51, 65, 85, 0.5);
-            border: 1px solid var(--border);
-            padding: 10px;
-            margin-bottom: 10px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             border-radius: 6px;
-            cursor: pointer;
             transition: all 0.2s;
         }
+
+        .sidebar-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        .sidebar-content {
+            padding: 16px;
+        }
+
+        .item {
+            background: rgba(31, 41, 55, 0.5);
+            border: 1px solid var(--border);
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
         .item:hover {
             background: rgba(59, 130, 246, 0.1);
             border-color: var(--blue);
             transform: translateX(4px);
         }
-        .item-name { color: var(--blue); font-weight: 600; font-size: 12px; margin-bottom: 2px; }
-        .item-desc { color: var(--gray); font-size: 11px; }
-        .buttons {
+
+        .item-name {
+            color: var(--blue);
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .item-desc {
+            color: var(--text-secondary);
+            font-size: 11px;
+        }
+
+        /* BOTTOM BUTTONS */
+        .bottom-buttons {
             position: fixed;
-            bottom: 20px;
+            bottom: 24px;
+            left: 24px;
             display: flex;
-            gap: 10px;
+            gap: 12px;
             z-index: 50;
         }
-        #templatesBtn { left: 20px; }
-        #commandsBtn { left: 190px; }
+
+        #templatesBtn, #commandsBtn {
+            background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+            padding: 12px 20px;
+            font-size: 13px;
+        }
+
+        #templatesBtn:hover, #commandsBtn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        @media (max-width: 1024px) {
+            .main { flex-direction: column; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- NAVBAR -->
         <div class="navbar">
-            <div class="logo">🐍 PyCode</div>
-            <div class="controls">
-                <button class="btn-run" id="runBtn">▶ Run</button>
-                <button id="downloadBtn">⬇ Download</button>
-                <button id="clearBtn">Clear</button>
+            <div class="navbar-left">
+                <div class="logo-section">
+                    <div class="logo-icon">🐍</div>
+                    <div class="logo-text">PyCode</div>
+                </div>
+                <div class="navbar-divider"></div>
+                <div class="nav-info">
+                    <div class="nav-info-label">Professional</div>
+                    <div>Python Editor</div>
+                </div>
+            </div>
+
+            <div class="navbar-center"></div>
+
+            <div class="navbar-right">
+                <button class="btn-run" id="runBtn">▶ Run Code</button>
+                <button class="btn-secondary" id="downloadBtn">⬇ Download</button>
+                <button class="btn-secondary" id="clearBtn">Clear Output</button>
+                <button class="btn-lang" id="langBtn">🌐 English</button>
             </div>
         </div>
 
+        <!-- MAIN CONTENT -->
         <div class="main">
-            <div class="editor-section">
-                <div class="header">Python Code</div>
+            <div class="editor-panel">
+                <div class="panel-header">Python Code Editor</div>
                 <div class="editor-wrapper">
                     <div class="editor-container">
                         <div class="highlight-layer" id="highlight"></div>
@@ -198,16 +438,19 @@
                 </div>
             </div>
 
-            <div class="output-section">
-                <div class="header">Output</div>
-                <div class="output-container" id="output">Ready</div>
+            <div class="output-panel">
+                <div class="panel-header">Output Console</div>
+                <div class="output-container" id="output">
+                    <div class="output-placeholder">Click "Run Code" to execute</div>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- SIDEBARS -->
     <div class="sidebar" id="templates">
         <div class="sidebar-header">
-            <h3>Templates (31+)</h3>
+            <h3 id="tTitle">Templates (31+)</h3>
             <button class="sidebar-close" id="tClose">✕</button>
         </div>
         <div class="sidebar-content" id="tContent"></div>
@@ -215,18 +458,45 @@
 
     <div class="sidebar" id="commands">
         <div class="sidebar-header">
-            <h3>Commands (60+)</h3>
+            <h3 id="cTitle">Commands (60+)</h3>
             <button class="sidebar-close" id="cClose">✕</button>
         </div>
         <div class="sidebar-content" id="cContent"></div>
     </div>
 
-    <div class="buttons">
+    <!-- BOTTOM BUTTONS -->
+    <div class="bottom-buttons">
         <button id="templatesBtn">📚 Templates</button>
         <button id="commandsBtn">🔧 Commands</button>
     </div>
 
     <script>
+        let lang = localStorage.getItem('pycode-lang') || 'en';
+
+        const translations = {
+            en: {
+                tTitle: 'Templates (31+)',
+                cTitle: 'Commands (60+)',
+                langBtn: '🌐 English',
+                ready: 'Click "Run Code" to execute'
+            },
+            de: {
+                tTitle: 'Vorlagen (31+)',
+                cTitle: 'Befehle (60+)',
+                langBtn: '🌐 Deutsch',
+                ready: 'Klicke "Code Ausführen" zum Ausführen'
+            }
+        };
+
+        function updateLang() {
+            const t = translations[lang];
+            document.getElementById('tTitle').textContent = t.tTitle;
+            document.getElementById('cTitle').textContent = t.cTitle;
+            document.getElementById('langBtn').textContent = t.langBtn;
+            document.getElementById('output').innerHTML = `<div class="output-placeholder">${t.ready}</div>`;
+            localStorage.setItem('pycode-lang', lang);
+        }
+
         const code = document.getElementById('code');
         const highlight = document.getElementById('highlight');
         const output = document.getElementById('output');
@@ -246,7 +516,7 @@
 
         code.addEventListener('input', () => {
             updateHL();
-            localStorage.setItem('code', code.value);
+            localStorage.setItem('pycode-code', code.value);
         });
 
         code.addEventListener('keydown', (e) => {
@@ -257,7 +527,7 @@
                 code.value = t.substring(0, p) + e.key + e.key + t.substring(p);
                 code.selectionStart = p + 1;
                 updateHL();
-                localStorage.setItem('code', code.value);
+                localStorage.setItem('pycode-code', code.value);
             }
         });
 
@@ -278,7 +548,7 @@
             'Todo App': 'todos = []\ntodos.append({"task": "Learn", "done": False})\ntodos.append({"task": "Code", "done": True})\nfor t in todos:\n    status = "✓" if t["done"] else "✗"\n    print(f"{status} {t["task"]}")',
             'Hangman': 'word = "python"\nguesses = set()\nwrong = set()\nwhile set(word) != guesses:\n    g = input("Guess: ")\n    if g in word:\n        guesses.add(g)\n    else:\n        wrong.add(g)\nprint(f"Won! Word: {word}")',
             'Weather Data': 'temps = [72, 75, 70, 78, 76]\navg = sum(temps) / len(temps)\nprint(f"Avg: {avg:.1f}F")\nprint(f"Max: {max(temps)}F")\nprint(f"Min: {min(temps)}F")',
-            'Bank Account': 'class Account:\n    def __init__(self, balance=0):\n        self.balance = balance\n    def deposit(self, amt):\n        self.balance += amt\n    def withdraw(self, amt):\n        self.balance -= amt\n\nacc = Account(1000)\nacc.deposit(500)\nprint(acc.balance)',
+            'Bank Account': 'class Account:\n    def __init__(self, balance=0):\n        self.balance = balance\n    def deposit(self, amt):\n        self.balance += amt\n\nacc = Account(1000)\nacc.deposit(500)\nprint(acc.balance)',
             'Prime Finder': 'def is_prime(n):\n    return n > 1 and all(n % i != 0 for i in range(2, int(n**0.5)+1))\n\nprimes = [n for n in range(2, 30) if is_prime(n)]\nprint(primes)',
             'Palindrome': 'def is_pal(s):\n    clean = s.lower().replace(" ", "")\n    return clean == clean[::-1]\n\nprint(is_pal("racecar"))\nprint(is_pal("hello"))',
             'Recursion': 'def countdown(n):\n    if n == 0:\n        print("Done!")\n    else:\n        print(n)\n        countdown(n-1)\n\ncountdown(5)',
@@ -292,7 +562,9 @@
             'OOP': 'class Car:\n    def __init__(self, brand):\n        self.brand = brand\n    def info(self):\n        return f"Car: {self.brand}"\n\ncar = Car("Toyota")\nprint(car.info())',
             'Generator': 'def count(n):\n    i = 0\n    while i < n:\n        yield i\n        i += 1\n\nfor x in count(5):\n    print(x)',
             'Decorator': 'def repeat(n):\n    def dec(func):\n        def wrapper(*args):\n            for _ in range(n):\n                func(*args)\n        return wrapper\n    return dec\n\n@repeat(3)\ndef greet(name):\n    print(f"Hello {name}")',
-            'List Comp': 'nums = [1, 2, 3, 4, 5]\nsquares = [x**2 for x in nums]\nevens = [x for x in nums if x % 2 == 0]\nprint(squares)\nprint(evens)'
+            'List Comp': 'nums = [1, 2, 3, 4, 5]\nsquares = [x**2 for x in nums]\nevens = [x for x in nums if x % 2 == 0]\nprint(squares)\nprint(evens)',
+            'API Simulator': 'import json\ndata = {"users": [{"id": 1, "name": "Alice"}, {"id": 2, "name": "Bob"}]}\nfor user in data["users"]:\n    print(f"ID: {user[\'id\']}, Name: {user[\'name\']}")',
+            'Web Scraper': 'text = "The Python <b>Foundation</b> and"\nstart = text.find("<b>") + 3\nend = text.find("</b>")\nresult = text[start:end]\nprint(f"Found: {result}")'
         };
 
         const commands = [
@@ -359,7 +631,7 @@
             'json.loads(str)'
         ];
 
-        function renderT() {
+        function renderTemplates() {
             document.getElementById('tContent').innerHTML = Object.keys(templates).map(k => 
                 `<div class="item"><div class="item-name">${k}</div><div class="item-desc">Template</div></div>`
             ).join('');
@@ -368,15 +640,15 @@
                 el.addEventListener('click', () => {
                     code.value = Object.values(templates)[i];
                     updateHL();
-                    localStorage.setItem('code', code.value);
+                    localStorage.setItem('pycode-code', code.value);
                     document.getElementById('templates').classList.remove('show');
                 });
             });
         }
 
-        function renderC() {
+        function renderCommands() {
             document.getElementById('cContent').innerHTML = commands.map(c => 
-                `<div class="item"><div class="item-name">${c.split('(')[0]}</div><div class="item-desc">Command</div></div>`
+                `<div class="item"><div class="item-name">${c.split('(')[0]}</div><div class="item-desc">Snippet</div></div>`
             ).join('');
             
             document.querySelectorAll('#cContent .item').forEach((el, i) => {
@@ -385,12 +657,13 @@
                     const t = code.value;
                     code.value = t.substring(0, p) + '\n' + commands[i] + '\n' + t.substring(p);
                     updateHL();
-                    localStorage.setItem('code', code.value);
+                    localStorage.setItem('pycode-code', code.value);
                     document.getElementById('commands').classList.remove('show');
                 });
             });
         }
 
+        // Event Listeners
         document.getElementById('templatesBtn').addEventListener('click', () => {
             document.getElementById('templates').classList.add('show');
             document.getElementById('commands').classList.remove('show');
@@ -417,17 +690,24 @@
         });
 
         document.getElementById('clearBtn').addEventListener('click', () => {
-            output.textContent = 'Ready';
+            output.innerHTML = `<div class="output-placeholder">${translations[lang].ready}</div>`;
         });
 
         document.getElementById('runBtn').addEventListener('click', () => {
-            output.innerHTML = '<div style="color: #10b981;">✓ Code executed</div>';
+            output.innerHTML = '<div class="output-line" style="color: var(--success);">✓ Code executed successfully</div>';
         });
 
-        code.value = localStorage.getItem('code') || 'print("Hello, World!")';
+        document.getElementById('langBtn').addEventListener('click', () => {
+            lang = lang === 'en' ? 'de' : 'en';
+            updateLang();
+        });
+
+        // Initialize
+        code.value = localStorage.getItem('pycode-code') || 'print("Hello, World!")\nprint("Welcome to PyCode!")';
         updateHL();
-        renderT();
-        renderC();
+        renderTemplates();
+        renderCommands();
+        updateLang();
     </script>
 </body>
 </html>
