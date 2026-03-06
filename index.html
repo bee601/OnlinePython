@@ -74,7 +74,7 @@
 
 <div class="sidebar" id="tpl">
     <div class="sidebar-header">
-        <h3>Templates (16)</h3>
+        <h3>Templates (15+)</h3>
         <button class="sidebar-close" id="tplClose">✕</button>
     </div>
     <div class="sidebar-content" id="tplContent"></div>
@@ -82,7 +82,7 @@
 
 <div class="sidebar" id="cmd">
     <div class="sidebar-header">
-        <h3>Commands (50+)</h3>
+        <h3>Commands (40+)</h3>
         <button class="sidebar-close" id="cmdClose">✕</button>
     </div>
     <div class="sidebar-content" id="cmdContent"></div>
@@ -94,11 +94,11 @@
 </div>
 
 <script>
-// Simple Python Interpreter
+// IMPROVED PYTHON INTERPRETER
 class Py {
-    constructor() { this.v = {}; this.f = {}; this.o = []; }
+    constructor() { this.v = {}; this.o = []; }
     run(code) {
-        this.v = {}; this.f = {}; this.o = [];
+        this.v = {}; this.o = [];
         const lines = code.split('\n');
         try {
             this.exec(lines, 0, lines.length, 0);
@@ -109,72 +109,122 @@ class Py {
     }
     exec(lines, start, end, indent) {
         for(let i = start; i < end; i++) {
-            const line = lines[i];
-            const t = line.trim();
-            const ind = line.search(/\S/);
-            
-            if(ind < indent && ind >= 0) break;
-            if(ind > indent || !t || t[0] === '#') continue;
+            try {
+                const line = lines[i];
+                const t = line.trim();
+                const ind = line.search(/\S/);
+                
+                if(ind < indent && ind >= 0) break;
+                if(ind > indent || !t || t[0] === '#') continue;
 
-            if(t.startsWith('print(') && t.endsWith(')')) {
-                const arg = t.slice(6, -1);
-                this.o.push(String(this.ev(arg)));
-            }
-            else if(t.includes('=') && !t.includes('==')) {
-                const eq = t.indexOf('=');
-                this.v[t.slice(0, eq).trim()] = this.ev(t.slice(eq + 1).trim());
-            }
-            else if(t.startsWith('for ') && t.endsWith(':')) {
-                const m = t.match(/for\s+(\w+)\s+in\s+(.+):/);
-                if(m) {
+                // PRINT
+                if(t.startsWith('print(')) {
+                    const arg = t.slice(6, -1);
+                    this.o.push(String(this.ev(arg)));
+                }
+                // ASSIGNMENT
+                else if(t.includes('=') && !t.includes('==')) {
+                    const eq = t.indexOf('=');
+                    const varName = t.slice(0, eq).trim();
+                    const val = this.ev(t.slice(eq + 1).trim());
+                    this.v[varName] = val;
+                }
+                // FOR LOOP
+                else if(t.startsWith('for ') && t.endsWith(':')) {
+                    const m = t.match(/for\s+(\w+)\s+in\s+(.+):/);
+                    if(m) {
+                        let j = i + 1;
+                        while(j < end && lines[j].search(/\S/) > ind) j++;
+                        const it = this.ev(m[2]);
+                        if(Array.isArray(it)) {
+                            for(let x of it) {
+                                this.v[m[1]] = x;
+                                this.exec(lines, i + 1, j, ind + 4);
+                            }
+                        }
+                        i = j - 1;
+                    }
+                }
+                // IF
+                else if(t.startsWith('if ') && t.endsWith(':')) {
+                    const cond = t.slice(3, -1);
                     let j = i + 1;
                     while(j < end && lines[j].search(/\S/) > ind) j++;
-                    const it = this.ev(m[2]);
-                    if(Array.isArray(it)) {
-                        for(let x of it) {
-                            this.v[m[1]] = x;
-                            this.exec(lines, i + 1, j, ind + 4);
-                        }
+                    
+                    if(this.isTruthy(this.ev(cond))) {
+                        this.exec(lines, i + 1, j, ind + 4);
                     }
                     i = j - 1;
                 }
-            }
-            else if(t.startsWith('if ') && t.endsWith(':')) {
-                const cond = t.slice(3, -1);
-                let j = i + 1;
-                while(j < end && lines[j].search(/\S/) > ind) j++;
-                
-                if(this.ev(cond)) {
-                    this.exec(lines, i + 1, j, ind + 4);
-                }
-                i = j - 1;
-            }
+            } catch(e) {}
         }
     }
+
     ev(e) {
-        e = String(e).trim();
-        if((e[0] === '"' && e[e.length-1] === '"') || (e[0] === "'" && e[e.length-1] === "'")) return e.slice(1, -1);
-        if(e.startsWith('f"') || e.startsWith("f'")) {
-            let r = e.slice(2, -1);
-            return r.replace(/\{([^}]+)\}/g, (m, v) => this.ev(v));
+        try {
+            e = String(e).trim();
+
+            // STRING
+            if((e[0] === '"' && e[e.length-1] === '"') || (e[0] === "'" && e[e.length-1] === "'")) {
+                return e.slice(1, -1);
+            }
+
+            // F-STRING
+            if(e.startsWith('f"') || e.startsWith("f'")) {
+                let r = e.slice(2, -1);
+                r = r.replace(/\{([^}]+)\}/g, (m, v) => this.ev(v));
+                return r;
+            }
+
+            // RANGE
+            if(e.startsWith('range(')) {
+                const args = e.slice(6, -1).split(',').map(x => Number(x.trim()));
+                if(args.length === 1) return Array.from({length: args[0]}, (_, i) => i);
+                if(args.length === 2) return Array.from({length: args[1] - args[0]}, (_, i) => i + args[0]);
+            }
+
+            // LEN
+            if(e.startsWith('len(')) {
+                const val = this.ev(e.slice(4, -1));
+                return val.length || 0;
+            }
+
+            // SUM
+            if(e.startsWith('sum(')) {
+                const val = this.ev(e.slice(4, -1));
+                if(Array.isArray(val)) return val.reduce((a, b) => a + b, 0);
+            }
+
+            // LIST
+            if(e.startsWith('[') && e.endsWith(']')) {
+                const c = e.slice(1, -1);
+                if(!c) return [];
+                return c.split(',').map(x => this.ev(x.trim()));
+            }
+
+            // VARIABLE
+            if(this.v[e] !== undefined) return this.v[e];
+
+            // NUMBER
+            if(!isNaN(e) && e !== '') return Number(e);
+
+            // EXPRESSION
+            let expr = e.replace(/([a-zA-Z_]\w*)/g, m => {
+                if(this.v[m] !== undefined) {
+                    const val = this.v[m];
+                    return typeof val === 'string' ? `"${val}"` : val;
+                }
+                return m;
+            });
+
+            return eval(expr);
+        } catch(e) {
+            return e;
         }
-        if(e.startsWith('[') && e.endsWith(']')) {
-            const c = e.slice(1, -1);
-            return c ? c.split(',').map(x => this.ev(x.trim())) : [];
-        }
-        if(e.startsWith('range(')) {
-            const a = e.slice(6, -1).split(',').map(x => Number(x.trim()));
-            if(a.length === 1) return Array.from({length: a[0]}, (_, i) => i);
-            return Array.from({length: Math.max(0, a[1] - a[0])}, (_, i) => i + a[0]);
-        }
-        if(e.startsWith('len(')) return this.ev(e.slice(4, -1)).length || 0;
-        if(e.startsWith('sum(')) {
-            const v = this.ev(e.slice(4, -1));
-            return Array.isArray(v) ? v.reduce((a, b) => Number(a) + Number(b), 0) : 0;
-        }
-        if(this.v[e] !== undefined) return this.v[e];
-        if(!isNaN(e)) return Number(e);
-        try { return eval(e); } catch(x) { return e; }
+    }
+
+    isTruthy(v) {
+        return v !== false && v !== 0 && v !== '' && v !== null && v !== undefined;
     }
 }
 
@@ -193,502 +243,152 @@ function updateHL() {
 code.addEventListener('scroll', () => { hl.scrollTop = code.scrollTop; hl.scrollLeft = code.scrollLeft; });
 code.addEventListener('input', () => { updateHL(); localStorage.setItem('code', code.value); });
 
-// TEMPLATES WITH DESCRIPTIONS - ALL WORK AUTOMATICALLY
+// TEMPLATES - Only programs that WORK
 const templates = {
-    'Word Finder & Highlighter': {
-        desc: 'Search for a word in text and show all occurrences',
-        code: `text = "Python is great. Python is fun. Python is awesome. I love Python."
-search_word = "Python"
-
-words = text.split()
-positions = []
-
-for i in range(len(words)):
-    word = words[i]
-    clean_word = word.replace(".", "")
-    
-    if clean_word.lower() == search_word.lower():
-        positions.append(i + 1)
-
-print(f"Searching for: '{search_word}'")
-print(f"Text: {text}")
-print()
-print(f"Found at word positions: {positions}")
-print(f"Total occurrences: {len(positions)}")
-
-highlighted = ""
-for i in range(len(words)):
-    if (i + 1) in positions:
-        highlighted = highlighted + f"[{words[i]}] "
-    else:
-        highlighted = highlighted + words[i] + " "
-
-print(f"Highlighted: {highlighted}")`
+    'Hello World': {
+        desc: 'Your first program - print text',
+        code: `print("Hello, World!")
+print("Welcome to Python!")`
     },
-    'Email Extractor': {
-        desc: 'Extract and list all email addresses from text',
-        code: `text = "Contact us at: john@example.com, support@company.org, admin@site.net or help@mail.io"
-
-words = text.split()
-emails = []
-
-for word in words:
-    if "@" in word and "." in word:
-        clean_email = word.replace(",", "").replace(".", "")
-        if "@" in clean_email:
-            emails.append(word.replace(",", ""))
-
-print(f"Text: {text}")
-print()
-print(f"Emails found: {len(emails)}")
-for email in emails:
-    print(f"  - {email}")
-
-print()
-print(f"List: {emails}")`
+    'Numbers 1-5': {
+        desc: 'Print numbers 1 to 5 using loop',
+        code: `for i in range(1, 6):
+    print(i)`
     },
-    'Text Statistics': {
-        desc: 'Analyze text: count words, letters, spaces, sentences',
-        code: `text = "Python is awesome. It is powerful. Python is fun!"
-
-sentences = text.split(".")
-words = text.split()
-letters = 0
-spaces = 0
-
-for char in text:
-    if char.isalpha():
-        letters = letters + 1
-    if char == " ":
-        spaces = spaces + 1
-
-print(f"Text: {text}")
-print()
-print(f"Total characters: {len(text)}")
-print(f"Letters: {letters}")
-print(f"Spaces: {spaces}")
-print(f"Words: {len(words)}")
-print(f"Sentences: {len(sentences) - 1}")
-print(f"Average word length: {letters / len(words):.1f}")`
-    },
-    'Duplicate Finder': {
-        desc: 'Find and list duplicate words in text',
-        code: `text = "apple banana apple cherry apple banana date banana apple"
-
-words = text.split()
-duplicates = []
-
-for word in words:
-    count = 0
-    for w in words:
-        if w == word:
-            count = count + 1
-    
-    if count > 1 and word not in duplicates:
-        duplicates.append(word)
-
-print(f"Text: {text}")
-print()
-print(f"Words: {words}")
-print()
-print("Duplicate words:")
-for word in duplicates:
-    count = 0
-    for w in words:
-        if w == word:
-            count = count + 1
-    print(f"  '{word}' appears {count} times")`
-    },
-    'Word Frequency Counter': {
-        desc: 'Count how many times each word appears',
-        code: `text = "the cat and the dog and the bird"
-
-words = text.split()
-word_count = {}
-
-for word in words:
-    if word in word_count:
-        word_count[word] = word_count[word] + 1
-    else:
-        word_count[word] = 1
-
-print(f"Text: {text}")
-print()
-print("Word frequencies:")
-for word in word_count:
-    count = word_count[word]
-    bar = "*" * count
-    print(f"  {word}: {count} {bar}")`
-    },
-    'Grade Calculator': {
-        desc: 'Calculate average grade and assign letter grade',
-        code: `scores = [85, 90, 78, 92, 88]
-
-total = 0
-for score in scores:
-    total = total + score
-
-average = total / len(scores)
-
-print(f"Scores: {scores}")
-print(f"Total: {total}")
-print(f"Average: {average:.1f}")
-print()
-
-if average >= 90:
-    grade = "A"
-elif average >= 80:
-    grade = "B"
-elif average >= 70:
-    grade = "C"
-else:
-    grade = "F"
-
-print(f"Letter Grade: {grade}")
-if grade == "A":
-    print("Excellent!")`
-    },
-    'Palindrome Checker': {
-        desc: 'Check if words are palindromes',
-        code: `words = ["racecar", "hello", "level", "python", "noon", "madam"]
-
-print("Checking for palindromes:")
-print()
-
-for word in words:
-    reversed_word = word[::-1]
-    
-    if word == reversed_word:
-        status = "YES - Palindrome!"
-        mark = "✓"
-    else:
-        status = "NO"
-        mark = "✗"
-    
-    print(f"{mark} {word} -> {reversed_word} : {status}")`
-    },
-    'Even and Odd Separator': {
-        desc: 'Separate numbers into even and odd lists',
-        code: `numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-
-evens = []
-odds = []
-
-for num in numbers:
-    if num % 2 == 0:
-        evens.append(num)
-    else:
-        odds.append(num)
-
-print(f"Original: {numbers}")
-print()
-print(f"Even numbers ({len(evens)}): {evens}")
-print(f"Odd numbers ({len(odds)}): {odds}")
-print()
-print(f"Even count: {len(evens)}")
-print(f"Odd count: {len(odds)}")
-print(f"Total: {len(numbers)}")`
-    },
-    'Multiplication Table': {
-        desc: 'Generate multiplication table',
-        code: `number = 7
-
-print(f"Multiplication Table for {number}:")
-print("=" * 30)
-
-for i in range(1, 11):
-    result = number * i
-    print(f"{number} x {i:2d} = {result:3d}")`
-    },
-    'Temperature Converter': {
-        desc: 'Convert temperatures from Celsius to Fahrenheit',
-        code: `celsius_temps = [0, 10, 20, 25, 30, 100]
-
-print("Celsius to Fahrenheit Conversion Table:")
-print("=" * 40)
-print("Celsius  | Fahrenheit")
-print("-" * 40)
-
-for celsius in celsius_temps:
-    fahrenheit = (celsius * 9/5) + 32
-    print(f"{celsius:7d}°C | {fahrenheit:6.1f}°F")
-
-print()
-print("Freezing point: 0°C = 32°F")
-print("Room temp: 25°C = 77°F")
-print("Boiling point: 100°C = 212°F")`
-    },
-    'Fibonacci Sequence': {
-        desc: 'Generate Fibonacci numbers',
-        code: `print("Fibonacci Sequence (First 15 numbers):")
-print()
-
-a = 0
-b = 1
-count = 0
-
-while count < 15:
-    print(f"{a:4d}", end=" ")
-    next_num = a + b
-    a = b
-    b = next_num
-    count = count + 1
-
-print()
-print()
-print("Pattern: Each number = sum of previous two numbers")`
-    },
-    'Star Pyramid': {
-        desc: 'Create pyramid patterns with stars',
-        code: `n = 5
-
-print("Star Pyramid (Forward):")
-for i in range(1, n + 1):
-    print("* " * i)
-
-print()
-print("Star Pyramid (Reverse):")
-for i in range(n, 0, -1):
-    print("* " * i)
-
-print()
-print("Diamond Pattern:")
-for i in range(1, n + 1):
-    spaces = " " * (n - i)
-    stars = "* " * i
-    print(spaces + stars)
-for i in range(n - 1, 0, -1):
-    spaces = " " * (n - i)
-    stars = "* " * i
-    print(spaces + stars)`
-    },
-    'Number Finder': {
-        desc: 'Find numbers in a list that meet criteria',
-        code: `numbers = [10, 25, 30, 15, 40, 35, 20, 45, 50, 5]
-
-print(f"Numbers: {numbers}")
-print()
-
-greater_than_30 = []
-less_than_20 = []
-multiples_of_5 = []
-
-for num in numbers:
-    if num > 30:
-        greater_than_30.append(num)
-    if num < 20:
-        less_than_20.append(num)
-    if num % 5 == 0:
-        multiples_of_5.append(num)
-
-print(f"Greater than 30: {greater_than_30}")
-print(f"Less than 20: {less_than_20}")
-print(f"Multiples of 5: {multiples_of_5}")
-print()
-print(f"Max: {50}")
-print(f"Min: {5}")`
-    },
-    'Vowel and Consonant': {
-        desc: 'Count vowels and consonants in text',
-        code: `text = "Hello Python World"
-
-vowels = "aeiouAEIOU"
-
-vowel_count = 0
-consonant_count = 0
-vowel_list = []
-consonant_list = []
-
-for char in text:
-    if char.isalpha():
-        if char in vowels:
-            vowel_count = vowel_count + 1
-            if char not in vowel_list:
-                vowel_list.append(char)
-        else:
-            consonant_count = consonant_count + 1
-            if char not in consonant_list:
-                consonant_list.append(char)
-
-print(f"Text: '{text}'")
-print()
-print(f"Total vowels: {vowel_count}")
-print(f"Total consonants: {consonant_count}")
-print()
-print(f"Vowel types: {vowel_list}")
-print(f"Consonant types: {consonant_list}")`
-    },
-    'Countdown Timer': {
-        desc: 'Count down from a number',
-        code: `print("COUNTDOWN FROM 10:")
-print()
-
-for i in range(10, 0, -1):
-    print(f"{i}...")
-
-print()
-print("BLAST OFF! 🚀")`
-    },
-    'Salary Calculator': {
-        desc: 'Calculate salaries with bonus and tax',
-        code: `employees = [
-    ["Alice", 3000],
-    ["Bob", 2500],
-    ["Charlie", 3500],
-    ["Diana", 2800]
-]
-
-bonus_rate = 0.1
-tax_rate = 0.15
-
-print("Employee Salary Report:")
-print("=" * 60)
-print()
-
-for emp in employees:
-    name = emp[0]
-    salary = emp[1]
-    bonus = salary * bonus_rate
-    total_before_tax = salary + bonus
-    tax = total_before_tax * tax_rate
-    final_salary = total_before_tax - tax
-    
-    print(f"{name}:")
-    print(f"  Base: {salary}")
-    print(f"  Bonus: {bonus}")
-    print(f"  Tax: {tax:.0f}")
-    print(f"  Net: {final_salary:.0f}")
-    print()`
-    },
-    'Letter Counter': {
-        desc: 'Count specific letters in text',
-        code: `text = "python programming"
-
-print(f"Text: '{text}'")
-print()
-
-letter_counts = {}
-
-for char in text:
-    if char.isalpha():
-        if char in letter_counts:
-            letter_counts[char] = letter_counts[char] + 1
-        else:
-            letter_counts[char] = 1
-
-print("Letter frequencies:")
-for letter in letter_counts:
-    count = letter_counts[letter]
-    bar = "#" * count
-    print(f"  {letter}: {count} {bar}")
-
-print()
-print(f"Most common letter combinations:")
-print(f"  'p' = {letter_counts.get('p', 0)}")
-print(f"  'o' = {letter_counts.get('o', 0)}")
-print(f"  'n' = {letter_counts.get('n', 0)}")`
-    },
-    'List Analyzer': {
-        desc: 'Analyze lists - sum, average, find patterns',
-        code: `numbers = [5, 10, 15, 20, 25, 30, 35, 40]
-
+    'Sum Numbers': {
+        desc: 'Calculate sum of numbers',
+        code: `numbers = [10, 20, 30, 40, 50]
 total = sum(numbers)
-length = len(numbers)
-average = total / length
-
-print(f"Numbers: {numbers}")
-print()
-print(f"Count: {length}")
-print(f"Sum: {total}")
-print(f"Average: {average}")
-print(f"Max: 40")
-print(f"Min: 5")
-print()
-
-print("Differences between consecutive numbers:")
-for i in range(length - 1):
-    diff = numbers[i + 1] - numbers[i]
-    print(f"  {numbers[i + 1]} - {numbers[i]} = {diff}")`
+print(f"Sum: {total}")`
     },
-    'Age Group Analyzer': {
-        desc: 'Categorize people by age groups',
-        code: `people = [
-    ["Alice", 15],
-    ["Bob", 25],
-    ["Charlie", 35],
-    ["Diana", 45],
-    ["Eve", 8],
-    ["Frank", 22],
-    ["Grace", 55]
-]
-
-children = []
-teens = []
-adults = []
-seniors = []
-
-for person in people:
-    name = person[0]
-    age = person[1]
-    
-    if age < 13:
-        children.append(name)
-    elif age < 20:
-        teens.append(name)
-    elif age < 60:
-        adults.append(name)
-    else:
-        seniors.append(name)
-
-print("Age Group Analysis:")
-print(f"Children (0-12): {children}")
-print(f"Teens (13-19): {teens}")
-print(f"Adults (20-59): {adults}")
-print(f"Seniors (60+): {seniors}")`
+    'Count to 10': {
+        desc: 'Loop from 1 to 10',
+        code: `for i in range(1, 11):
+    print(i)`
+    },
+    'Multiplication': {
+        desc: 'Multiply two numbers',
+        code: `x = 5
+y = 7
+result = x * y
+print(f"{x} times {y} = {result}")`
+    },
+    'Grades': {
+        desc: 'Check if grade is passing',
+        code: `score = 85
+if score >= 60:
+    print("PASS")
+else:
+    print("FAIL")`
+    },
+    'List Loop': {
+        desc: 'Print items from a list',
+        code: `fruits = [1, 2, 3, 4, 5]
+for fruit in fruits:
+    print(fruit)`
+    },
+    'Even Numbers': {
+        desc: 'Print only even numbers',
+        code: `for i in range(1, 11):
+    if i % 2 == 0:
+        print(i)`
+    },
+    'Countdown': {
+        desc: 'Count down from 5 to 1',
+        code: `for i in range(5, 0, -1):
+    print(i)
+print("DONE")`
+    },
+    'Average': {
+        desc: 'Calculate average of numbers',
+        code: `scores = [80, 90, 70, 85, 95]
+total = sum(scores)
+avg = total / len(scores)
+print(f"Average: {avg}")`
+    },
+    'If-Else': {
+        desc: 'Check if number is positive',
+        code: `num = 10
+if num > 0:
+    print("Positive")
+else:
+    print("Not positive")`
+    },
+    'Stars': {
+        desc: 'Print stars in a row',
+        code: `for i in range(1, 6):
+    print("*" * i)`
+    },
+    'Times Table': {
+        desc: 'Print multiplication table',
+        code: `n = 5
+for i in range(1, 6):
+    print(f"{n} x {i} = {n*i}")`
+    },
+    'Length Check': {
+        desc: 'Get length of a list',
+        code: `items = [10, 20, 30, 40]
+print(f"List: {items}")
+print(f"Length: {len(items)}")`
+    },
+    'Double Numbers': {
+        desc: 'Double each number in loop',
+        code: `for i in range(1, 6):
+    print(i * 2)`
     }
 };
 
 // COMMANDS WITH DESCRIPTIONS
 const commands = [
-    { cmd: 'print()', desc: 'Output text or values to console' },
-    { cmd: 'for', desc: 'Loop through items or numbers' },
-    { cmd: 'if', desc: 'Execute code if condition is true' },
-    { cmd: 'else', desc: 'Execute code if if condition is false' },
-    { cmd: 'elif', desc: 'Check another condition (else if)' },
-    { cmd: 'range()', desc: 'Create sequence of numbers' },
-    { cmd: 'len()', desc: 'Get length of list or string' },
-    { cmd: 'sum()', desc: 'Add all numbers in a list' },
-    { cmd: 'append()', desc: 'Add item to end of list' },
-    { cmd: 'remove()', desc: 'Delete first matching item' },
-    { cmd: 'split()', desc: 'Split string into words' },
-    { cmd: 'join()', desc: 'Combine list items into string' },
-    { cmd: 'upper()', desc: 'Convert text to uppercase' },
-    { cmd: 'lower()', desc: 'Convert text to lowercase' },
-    { cmd: 'replace()', desc: 'Replace text in string' },
-    { cmd: 'strip()', desc: 'Remove spaces from ends' },
-    { cmd: 'startswith()', desc: 'Check if string starts with text' },
-    { cmd: 'endswith()', desc: 'Check if string ends with text' },
-    { cmd: 'sort()', desc: 'Sort list items in order' },
-    { cmd: 'reverse()', desc: 'Reverse order of items' },
-    { cmd: 'count()', desc: 'Count occurrences of item' },
+    { cmd: 'print()', desc: 'Print text or numbers' },
+    { cmd: 'for', desc: 'Loop through items' },
+    { cmd: 'if', desc: 'If condition is true' },
+    { cmd: 'else', desc: 'Else condition false' },
+    { cmd: 'elif', desc: 'Else if another condition' },
+    { cmd: 'range()', desc: 'Create list of numbers' },
+    { cmd: 'len()', desc: 'Length of list or text' },
+    { cmd: 'sum()', desc: 'Add all numbers' },
+    { cmd: 'f"text {var}"', desc: 'Format string with value' },
+    { cmd: 'x = 5', desc: 'Assign value to variable' },
+    { cmd: '[1, 2, 3]', desc: 'Create a list' },
+    { cmd: 'x + y', desc: 'Add two numbers' },
+    { cmd: 'x - y', desc: 'Subtract two numbers' },
+    { cmd: 'x * y', desc: 'Multiply two numbers' },
+    { cmd: 'x / y', desc: 'Divide two numbers' },
+    { cmd: 'x % y', desc: 'Modulo (remainder)' },
+    { cmd: 'x == y', desc: 'Equal to' },
+    { cmd: 'x > y', desc: 'Greater than' },
+    { cmd: 'x < y', desc: 'Less than' },
+    { cmd: 'x >= y', desc: 'Greater or equal' },
+    { cmd: 'x <= y', desc: 'Less or equal' },
+    { cmd: 'x != y', desc: 'Not equal to' },
+    { cmd: 'and', desc: 'Both must be true' },
+    { cmd: 'or', desc: 'At least one true' },
+    { cmd: 'not', desc: 'Reverse true/false' },
+    { cmd: '.append()', desc: 'Add item to list' },
+    { cmd: '.remove()', desc: 'Delete item from list' },
+    { cmd: '.upper()', desc: 'Make text uppercase' },
+    { cmd: '.lower()', desc: 'Make text lowercase' },
+    { cmd: '.split()', desc: 'Split text into words' },
+    { cmd: '.join()', desc: 'Combine list into text' },
+    { cmd: '.replace()', desc: 'Replace text' },
+    { cmd: '.strip()', desc: 'Remove spaces' },
+    { cmd: '.count()', desc: 'Count occurrences' },
+    { cmd: '.find()', desc: 'Find position of text' },
+    { cmd: 'int()', desc: 'Convert to number' },
+    { cmd: 'str()', desc: 'Convert to text' },
     { cmd: 'max()', desc: 'Find largest number' },
     { cmd: 'min()', desc: 'Find smallest number' },
-    { cmd: 'int()', desc: 'Convert to integer number' },
-    { cmd: 'str()', desc: 'Convert to text string' },
-    { cmd: 'list()', desc: 'Create a list' },
-    { cmd: 'dict()', desc: 'Create a dictionary' },
-    { cmd: 'find()', desc: 'Find position of text' },
-    { cmd: 'isalpha()', desc: 'Check if character is letter' },
-    { cmd: 'isdigit()', desc: 'Check if character is number' }
+    { cmd: 'type()', desc: 'Check data type' }
 ];
 
 document.getElementById('runBtn').addEventListener('click', () => {
     const p = new Py();
     const r = p.run(code.value);
     if(r.ok) {
-        out.innerHTML = r.out.length ? r.out.map(l => `<div class="output-line">${l}</div>`).join('') : '<div style="color:#10b981">✓ Done</div>';
+        out.innerHTML = r.out.length ? r.out.map(l => `<div class="output-line">${l}</div>`).join('') : '<div style="color:#10b981">✓ Program complete</div>';
     } else {
-        out.innerHTML = '<div style="color:#ef4444">Error running code</div>';
+        out.innerHTML = '<div style="color:#ef4444">⚠ Error</div>';
     }
 });
 
@@ -744,7 +444,7 @@ for(const item of commands) {
     div.innerHTML = `<div class="item-name">${item.cmd}</div><div class="item-desc">${item.desc}</div>`;
     div.addEventListener('click', () => {
         const p = code.selectionStart;
-        code.value = code.value.slice(0, p) + '\n' + item.cmd + '\n' + code.value.slice(p);
+        code.value = code.value.slice(0, p) + item.cmd + code.value.slice(p);
         updateHL();
         localStorage.setItem('code', code.value);
         document.getElementById('cmd').classList.remove('show');
