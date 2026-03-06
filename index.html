@@ -478,13 +478,19 @@
                 tTitle: 'Templates (31+)',
                 cTitle: 'Commands (60+)',
                 langBtn: '🌐 English',
-                ready: 'Click "Run Code" to execute'
+                ready: 'Click "Run Code" to execute',
+                runBtn: '▶ Run Code',
+                downloadBtn: '⬇ Download',
+                clearBtn: 'Clear Output'
             },
             de: {
                 tTitle: 'Vorlagen (31+)',
                 cTitle: 'Befehle (60+)',
                 langBtn: '🌐 Deutsch',
-                ready: 'Klicke "Code Ausführen" zum Ausführen'
+                ready: 'Klicke "Code Ausführen" zum Ausführen',
+                runBtn: '▶ Code Ausführen',
+                downloadBtn: '⬇ Download',
+                clearBtn: 'Output Löschen'
             }
         };
 
@@ -493,6 +499,9 @@
             document.getElementById('tTitle').textContent = t.tTitle;
             document.getElementById('cTitle').textContent = t.cTitle;
             document.getElementById('langBtn').textContent = t.langBtn;
+            document.getElementById('runBtn').textContent = t.runBtn;
+            document.getElementById('downloadBtn').textContent = t.downloadBtn;
+            document.getElementById('clearBtn').textContent = t.clearBtn;
             document.getElementById('output').innerHTML = `<div class="output-placeholder">${t.ready}</div>`;
             localStorage.setItem('pycode-lang', lang);
         }
@@ -693,8 +702,94 @@
             output.innerHTML = `<div class="output-placeholder">${translations[lang].ready}</div>`;
         });
 
+        // Python Executor
+        class PythonExecutor {
+            constructor() {
+                this.variables = {};
+                this.output = [];
+            }
+
+            execute(code) {
+                this.output = [];
+                const lines = code.split('\n');
+                
+                try {
+                    for (let line of lines) {
+                        const trimmed = line.trim();
+                        if (!trimmed || trimmed.startsWith('#')) continue;
+                        
+                        // Handle print()
+                        if (trimmed.startsWith('print(')) {
+                            const content = trimmed.substring(6, trimmed.length - 1);
+                            const result = this.evaluateExpression(content);
+                            this.output.push(String(result));
+                        }
+                        // Handle variable assignment
+                        else if (trimmed.includes('=') && !trimmed.includes('==')) {
+                            const [varName, expr] = trimmed.split('=').map(x => x.trim());
+                            const value = this.evaluateExpression(expr);
+                            this.variables[varName] = value;
+                        }
+                    }
+                    return { success: true, output: this.output };
+                } catch (e) {
+                    return { success: false, error: e.message };
+                }
+            }
+
+            evaluateExpression(expr) {
+                expr = expr.trim();
+                
+                // String literals
+                if ((expr.startsWith('"') && expr.endsWith('"')) || 
+                    (expr.startsWith("'") && expr.endsWith("'"))) {
+                    return expr.slice(1, -1);
+                }
+                
+                // f-strings
+                if (expr.startsWith('f"') || expr.startsWith("f'")) {
+                    let result = expr.slice(2, -1);
+                    const regex = /\{([^}]+)\}/g;
+                    result = result.replace(regex, (match, varName) => {
+                        return this.variables[varName] || match;
+                    });
+                    return result;
+                }
+                
+                // Variables
+                if (this.variables[expr] !== undefined) {
+                    return this.variables[expr];
+                }
+                
+                // Numbers
+                if (!isNaN(expr) && expr !== '') {
+                    return parseFloat(expr);
+                }
+                
+                // Simple math
+                try {
+                    return eval(expr);
+                } catch (e) {
+                    return expr;
+                }
+            }
+        }
+
         document.getElementById('runBtn').addEventListener('click', () => {
-            output.innerHTML = '<div class="output-line" style="color: var(--success);">✓ Code executed successfully</div>';
+            const executor = new PythonExecutor();
+            const result = executor.execute(code.value);
+            
+            if (result.success) {
+                if (result.output.length === 0) {
+                    output.innerHTML = '<div class="output-line" style="color: var(--success);">✓ Code executed (no output)</div>';
+                } else {
+                    output.innerHTML = result.output.map(line => 
+                        `<div class="output-line">${line}</div>`
+                    ).join('');
+                }
+            } else {
+                output.innerHTML = `<div class="output-line" style="color: #ef4444;">Error: ${result.error}</div>`;
+            }
         });
 
         document.getElementById('langBtn').addEventListener('click', () => {
